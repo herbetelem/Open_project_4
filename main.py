@@ -62,6 +62,7 @@ while running:
         if event.type == pygame.QUIT:
             running = False
             pygame.quit()
+            game.sql.connection.close()
             print("le jeu ce ferme")
 
         # if mouseclick
@@ -91,7 +92,22 @@ while running:
                 if game.step == "date":
                     game.tournament.date = f"{game.day}/{game.month}/{game.year}"
                 if game.step == "time":
-                    game.tournament.time = game.choice
+                    if game.choice == 1:
+                        game.tournament.time = "bullet"
+                    elif game.choice == 2:
+                        game.tournament.time = "blitz"
+                    elif game.choice == 3:
+                        game.tournament.time = "coup rapide"
+                if game.step == "description":
+                    data = (game.tournament.name,
+                    game.tournament.location[0],
+                    game.tournament.nb_turn,
+                    0,
+                    game.tournament.description,
+                    game.tournament.time,
+                    game.tournament.date
+                    )
+                    game.sql.create_tournament(data)
                 game.step = step[game.step]
                 game.index_location = 0
 

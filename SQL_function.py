@@ -1,8 +1,10 @@
 import sqlite3
 
 # class who will do the request SQL
+
+
 class SQL_function():
-    
+
     # connect the bdd and create the cursor
     def __init__(self):
         self.connector = sqlite3.connect('tournament_checkmate.db')
@@ -29,15 +31,34 @@ class SQL_function():
         return result
 
     # create the tournament
-    def create_tournament(self, data):
-        new_tournament = (self.cursor.lastrowid,
-        data[0],
-        data[1],
-        data[2],
-        data[3],
-        data[4],
-        data[5],
-        data[6],)
-        import pdb; pdb.set_trace()
-        self.cursor.execute('INSERT INTO tournament VALUES(?,?,?,?,?,?,?,?)', new_tournament)
+    def create_tournament(self, data, players):
+        self.cursor.execute('SELECT id FROM tournament')
+        result = self.cursor.fetchall()
+        if len(result) > 0:
+            id_tournament = len(result) - 1
+            id_tournament = result[id_tournament][0]
+            id_tournament += 1
+        else:
+            id_tournament = 0
+        new_tournament = (id_tournament,
+                          data[0],
+                          data[1],
+                          data[2],
+                          data[3],
+                          data[4],
+                          data[5],)
+        self.cursor.execute(
+            'INSERT INTO tournament VALUES(?,?,?,?,?,?,?)', new_tournament)
         self.connector.commit()
+        for player in players:
+            tmp = (id_tournament, player,)
+            self.cursor.execute(
+            'INSERT INTO player_tournament VALUES(?,?)', tmp)
+            self.connector.commit()
+
+
+    def get_players(self, search):
+        request = f"SELECT * FROM player WHERE lastname LIKE '%{search}%' LIMIT 8;"
+        self.cursor.execute(request)
+        result = self.cursor.fetchall()
+        return result

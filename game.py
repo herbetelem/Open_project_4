@@ -1,6 +1,7 @@
 import pygame
 from tournament import Tournament
 from SQL_function import SQL_function
+from add_player import Add_player
 
 # create class game
 
@@ -23,6 +24,12 @@ class Game:
         self.next_rect.y = 500
         self.font = pygame.font.Font(None, 55)
         self.font_turn = pygame.font.Font(None, 90)
+        self.search_button = pygame.image.load('assets/button/search.png')
+        self.search_button = pygame.transform.scale(
+            self.search_button, (50, 50))
+        self.search_button_rect = self.search_button.get_rect()
+        self.search_button_rect.x = 940
+        self.search_button_rect.y = 125
 
         # var about the tournament
         self.players = []
@@ -39,6 +46,13 @@ class Game:
         self.less_rect.y = 300
         self.choice = 1
         self.set_round_time()
+        self.players = []
+        self.players_search = ""
+        self.tmp_players = []
+        list_search_location = [[245, 190], [345, 190], [445, 190], [
+            545, 190], [245, 640], [345, 640], [445, 640], [545, 640]]
+        for i in list_search_location:
+            self.tmp_players.append(Add_player(i[0], i[1], False, 0))
 
     # set the rect for the time management
 
@@ -71,39 +85,45 @@ class Game:
     def create_tournament(self, screen):
         if self.step == "name":
             self.create_tournament_name(screen)
-        if self.step == "country":
+        elif self.step == "country":
             self.create_tournament_country(screen)
-        if self.step == "town":
+        elif self.step == "town":
             self.create_tournament_town(screen)
-        if self.step == "location":
+        elif self.step == "location":
             self.create_tournament_location(screen)
-        if self.step == "date":
+        elif self.step == "date":
             self.create_tournament_date(screen)
-        if self.step == "turn":
+        elif self.step == "turn":
             self.create_tournament_turn(screen)
-        if self.step == "tour":
+        elif self.step == "tour":
             self.create_tournament_tour(screen)
-        if self.step == "time":
+        elif self.step == "time":
             self.create_tournament_time(screen)
-        if self.step == "description":
+        elif self.step == "description":
             self.create_tournament_description(screen)
+        elif self.step == "player":
+            self.create_tournament_player(screen)
+        elif self.step == "end":
+            self.create_tournament_end(screen)
+        elif self.step == "next":
+            self.resume_tournament(screen)
 
     # methode to create the name
     def create_tournament_name(self, screen):
         sentence = "Veuillez entrer le nom du tournoi"
-        text = self.font.render(sentence, 1, (255, 0, 255))
+        text = self.font.render(sentence, 1, (255, 255, 255))
         screen.blit(text, (340, 100))
         input = pygame.image.load('assets/button/input.png')
         input = pygame.transform.scale(input, (700, 150))
         screen.blit(input, (((1280 - 700) / 2), 300))
-        text = self.font.render(self.tournament.name, 1, (0, 0, 0))
+        text = self.font.render(self.tournament.name, 1, (255, 255, 255))
         screen.blit(text, (((1280 - 700) / 2 + 50), 340))
         screen.blit(self.next, self.next_rect)
 
     # method to select the country
     def create_tournament_country(self, screen):
         sentence = "Veuillez choisir le pays"
-        text = self.font.render(sentence, 1, (255, 0, 255))
+        text = self.font.render(sentence, 1, (255, 255, 255))
         screen.blit(text, (440, 100))
         screen.blit(self.next, self.next_rect)
         country = self.sql.get_country()
@@ -115,7 +135,7 @@ class Game:
 
     def create_tournament_town(self, screen):
         sentence = "Veuillez choisir la ville"
-        text = self.font.render(sentence, 1, (255, 0, 255))
+        text = self.font.render(sentence, 1, (255, 255, 255))
         screen.blit(text, (440, 100))
         screen.blit(self.next, self.next_rect)
         town = self.sql.get_town(self.tournament.country)
@@ -127,7 +147,7 @@ class Game:
 
     def create_tournament_location(self, screen):
         sentence = "Veuillez choisir le batiment"
-        text = self.font.render(sentence, 1, (255, 0, 255))
+        text = self.font.render(sentence, 1, (255, 255, 255))
         screen.blit(text, (440, 100))
         screen.blit(self.next, self.next_rect)
         location = self.sql.get_location(self.tournament.town)
@@ -140,7 +160,7 @@ class Game:
     def create_tournament_date(self, screen):
         font_date = pygame.font.Font(None, 70)
         sentence = "Veuillez choisir la date"
-        text = self.font.render(sentence, 1, (255, 0, 255))
+        text = self.font.render(sentence, 1, (255, 255, 255))
         screen.blit(text, (440, 100))
         screen.blit(self.next, self.next_rect)
         self.day_font = font_date.render(str(self.day), 1, (255, 255, 255))
@@ -153,7 +173,7 @@ class Game:
     def create_tournament_turn(self, screen):
         font_turn = pygame.font.Font(None, 70)
         sentence = "Veuillez choisir le nombre de tours"
-        text = self.font.render(sentence, 1, (255, 0, 255))
+        text = self.font.render(sentence, 1, (255, 255, 255))
         screen.blit(text, (340, 100))
         screen.blit(self.next, self.next_rect)
         turn = font_turn.render(
@@ -164,7 +184,7 @@ class Game:
 
     def create_tournament_time(self, screen):
         sentence = "Veuillez choisir le style de temps"
-        text = self.font.render(sentence, 1, (255, 0, 255))
+        text = self.font.render(sentence, 1, (255, 255, 255))
         screen.blit(text, (340, 100))
         screen.blit(self.next, self.next_rect)
         self.set_round_time()
@@ -212,7 +232,7 @@ class Game:
     def create_tournament_description(self, screen):
         sentence = "Veuillez entrer la description du tournoi"
         font = pygame.font.Font(None, 35)
-        text = self.font.render(sentence, 1, (255, 0, 255))
+        text = self.font.render(sentence, 1, (255, 255, 255))
         screen.blit(text, (340, 100))
         input = pygame.image.load('assets/button/input.png')
         input = pygame.transform.scale(input, (700, 150))
@@ -225,3 +245,99 @@ class Game:
             text_tmp = text_tmp[50:]
             text_y += 30
         screen.blit(self.next, self.next_rect)
+
+    def create_tournament_player(self, screen):
+        tmp_p = 8 - len(self.players)
+        sentence = f"Veuillez selectioner les {tmp_p} joueurs"
+        font = pygame.font.Font(None, 35)
+        text = self.font.render(sentence, 1, (255, 255, 255))
+        screen.blit(text, (340, 50))
+        if len(self.players) == 8:
+            screen.blit(self.next, self.next_rect)
+        else:
+            input = pygame.image.load('assets/button/input.png')
+            input = pygame.transform.scale(input, (600, 75))
+            screen.blit(input, (310, 100))
+            screen.blit(self.search_button, self.search_button_rect)
+            text = font.render(self.players_search, 1, (255, 255, 255))
+            screen.blit(text, (330, 120))
+            text = font.render("nom du joueur", 1, (255, 255, 255))
+            screen.blit(text, (120, 120))
+            self.search_player(screen)
+
+    def search_player(self, screen):
+        if len(self.players_search) > 0:
+            request = self.sql.get_players(self.players_search)
+            index = 0
+            tmp_x = 250
+            tmp_y = 250
+            for tmp in self.tmp_players:
+                tmp.show = False
+            for player in request:
+                font = pygame.font.Font(None, 35)
+                name = player[1] + " " + player[2]
+                text = font.render(name, 1, (255, 255, 255))
+                screen.blit(text, (tmp_x, tmp_y))
+                if index == 3:
+                    tmp_y = 250
+                    tmp_x = 700
+                else:
+                    tmp_y += 100
+                self.tmp_players[index].show = True
+                self.tmp_players[index].id_player = player[0]
+                index += 1
+            for tmp in self.tmp_players:
+                if tmp.show == True:
+                    if tmp.id_player not in self.players:
+                        screen.blit(tmp.img, tmp.rect)
+
+    def create_tournament_end(self, screen):
+        # save the tournament in the db
+        data = (self.tournament.name,
+            self.tournament.location[0],
+            self.tournament.nb_turn,
+            self.tournament.description,
+            self.tournament.time,
+            self.tournament.date
+            )
+        self.sql.create_tournament(data, self.players)
+        self.step = "next"
+
+    def resume_tournament(self, screen):
+        sentence = f"Résumé du tournoi"
+        font = pygame.font.Font(None, 35)
+        text = font.render(sentence, 1, (255, 255, 255))
+        screen.blit(text, (340, 50))
+        sentence = f"nom: {self.tournament.name}"
+        font = pygame.font.Font(None, 35)
+        text = font.render(sentence, 1, (255, 255, 255))
+        screen.blit(text, (340, 100))
+        sentence = f"pays: {self.tournament.country}"
+        font = pygame.font.Font(None, 35)
+        text = font.render(sentence, 1, (255, 255, 255))
+        screen.blit(text, (340, 150))
+        sentence = f"ville: {self.tournament.town}"
+        font = pygame.font.Font(None, 35)
+        text = font.render(sentence, 1, (255, 255, 255))
+        screen.blit(text, (340, 200))
+        sentence = f"lieu: {self.tournament.location}"
+        font = pygame.font.Font(None, 35)
+        text = font.render(sentence, 1, (255, 255, 255))
+        screen.blit(text, (340, 250))
+        sentence = f"date: {self.tournament.date}"
+        font = pygame.font.Font(None, 35)
+        text = font.render(sentence, 1, (255, 255, 255))
+        screen.blit(text, (340, 300))
+        sentence = f"temps: {self.tournament.time}"
+        font = pygame.font.Font(None, 35)
+        text = font.render(sentence, 1, (255, 255, 255))
+        screen.blit(text, (340, 350))
+        sentence = f"description: {self.tournament.description}"
+        font = pygame.font.Font(None, 35)
+        text = font.render(sentence, 1, (255, 255, 255))
+        screen.blit(text, (340, 400))
+        sentence = f"joueurs: {self.tournament.players}"
+        font = pygame.font.Font(None, 35)
+        text = font.render(sentence, 1, (255, 255, 255))
+        screen.blit(text, (340, 450))
+        

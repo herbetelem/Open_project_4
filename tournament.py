@@ -1,7 +1,9 @@
 import pygame
 import math
 
-#create class tournament
+# create class tournament
+
+
 class Tournament:
 
     def __init__(self):

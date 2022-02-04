@@ -14,11 +14,13 @@ background = pygame.transform.scale(background, (1280, 720))
 
 # create button and rect for first menu
 play_button = pygame.image.load('assets/button/new_game.png')
+play_button = pygame.transform.scale(play_button, (400, 100))
 play_button_rect = play_button.get_rect()
 play_button_rect.x = math.ceil(screen.get_width() / 4) - 50
 play_button_rect.y = math.ceil(screen.get_height() / 2)
 
 load_button = pygame.image.load('assets/button/load_game.png')
+load_button = pygame.transform.scale(load_button, (400, 100))
 load_button_rect = load_button.get_rect()
 load_button_rect.x = math.ceil(screen.get_width() / 4) * 2 + 50
 load_button_rect.y = math.ceil(screen.get_height() / 2)
@@ -42,8 +44,8 @@ step = {
     "turn": "time",
     "time": "description",
     "description": "player",
+    "player": "end"
 }
-
 while running:
 
     if game.is_launch:
@@ -62,18 +64,19 @@ while running:
         if event.type == pygame.QUIT:
             running = False
             pygame.quit()
-            game.sql.connection.close()
+            game.sql.connector.close()
             print("le jeu ce ferme")
 
         # if mouseclick
         elif event.type == pygame.MOUSEBUTTONDOWN:
 
             # manage the first menu
-            if play_button_rect.collidepoint(event.pos):
-                game.is_launch = True
-                game.step = "name"
-            if load_button_rect.collidepoint(event.pos):
-                print('load')
+            if game.step == False:
+                if play_button_rect.collidepoint(event.pos):
+                    game.is_launch = True
+                    game.step = "name"
+                if load_button_rect.collidepoint(event.pos):
+                    print('load')
 
             # manage the next step of creation of a tournament
             if game.next_rect.collidepoint(event.pos):
@@ -98,41 +101,39 @@ while running:
                         game.tournament.time = "blitz"
                     elif game.choice == 3:
                         game.tournament.time = "coup rapide"
-                if game.step == "description":
-                    data = (game.tournament.name,
-                    game.tournament.location[0],
-                    game.tournament.nb_turn,
-                    0,
-                    game.tournament.description,
-                    game.tournament.time,
-                    game.tournament.date
-                    )
-                    game.sql.create_tournament(data)
-                game.step = step[game.step]
-                game.index_location = 0
+                if game.step == "player" and len(game.players) == 8:
+                    game.tournament.players = game.players
+                    game.step = step[game.step]
+                    game.index_location = 0
+                elif game.step != "player":
+                    game.step = step[game.step]
+                    game.index_location = 0
 
             # manage the selection of the date
-            if game.day_rect.collidepoint(event.pos):
-                if game.day == 31:
-                    game.day = 1
-                else:
-                    game.day += 1
-            if game.month_rect.collidepoint(event.pos):
-                if game.month == 12:
-                    game.month = 1
-                else:
-                    game.month += 1
-            if game.year_rect.collidepoint(event.pos):
-                game.year += 1
+            if game.step == "date":
+                if game.day_rect.collidepoint(event.pos):
+                    if game.day == 31:
+                        game.day = 1
+                    else:
+                        game.day += 1
+                if game.month_rect.collidepoint(event.pos):
+                    if game.month == 12:
+                        game.month = 1
+                    else:
+                        game.month += 1
+                if game.year_rect.collidepoint(event.pos):
+                    game.year += 1
 
             # manage the selection of turn
-            if game.more_rect.collidepoint(event.pos):
-                game.tournament.nb_turn += 1
-            if game.less_rect.collidepoint(event.pos):
-                if game.tournament.nb_turn > 1:
-                    game.tournament.nb_turn -= 1
+            if game.step == "turn":
+                if game.more_rect.collidepoint(event.pos):
+                    if game.tournament.nb_turn < 4:
+                        game.tournament.nb_turn += 1
+                if game.less_rect.collidepoint(event.pos):
+                    if game.tournament.nb_turn > 1:
+                        game.tournament.nb_turn -= 1
 
-            #manage the selection of time
+            # manage the selection of time
             if game.step == "time":
                 if game.choice_A_rect.collidepoint(event.pos):
                     game.choice = 1
@@ -141,29 +142,45 @@ while running:
                 if game.choice_C_rect.collidepoint(event.pos):
                     game.choice = 3
 
+            if game.step == "player":
+                for button in game.tmp_players:
+                    if button.rect.collidepoint(event.pos):
+                        if button.id_player not in game.players and len(game.players_search) > 0:
+                            game.players.append(button.id_player)
+                            game.players_search = ""
+                            game.step = "player"
+
         # if use keyboard
         elif event.type == pygame.KEYDOWN:
             # manage the creation of the name
-            if game.step == "name" or game.step == "description":
+            if game.step == "name" or game.step == "description" or game.step == "player":
                 letters = {x: pygame.key.key_code(
                     x) for x in "abcdefghijklmnopqrstuvwxyz"}
                 touche = pygame.key.get_pressed()
                 for (l, value) in letters.items():
                     if touche[value]:
                         if game.step == "name":
-                            game.tournament.name = game.tournament.name + str(l)
-                        else:
-                            game.tournament.description = game.tournament.description + str(l)
+                            game.tournament.name = game.tournament.name + \
+                                str(l)
+                        elif game.step == "description":
+                            game.tournament.description = game.tournament.description + \
+                                str(l)
+                        elif game.step == "player":
+                            game.players_search = game.players_search + str(l)
                 if event.key == pygame.K_SPACE:
                     if game.step == "name":
                         game.tournament.name = game.tournament.name + " "
-                    else:
+                    elif game.step == "description":
                         game.tournament.description = game.tournament.description + " "
+                    elif game.step == "player":
+                        game.players_search = game.players_search + " "
                 elif event.key == pygame.K_BACKSPACE:
                     if game.step == "name":
                         game.tournament.name = game.tournament.name[:-1]
-                    else:
+                    elif game.step == "description":
                         game.tournament.description = game.tournament.description[:-1]
+                    elif game.step == "player":
+                        game.players_search = game.players_search[:-1]
 
             if game.step == "country":
                 if event.key == pygame.K_LEFT:

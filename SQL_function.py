@@ -5,33 +5,61 @@ import sqlite3
 
 class SQL_function():
 
-    # connect the bdd and create the cursor
     def __init__(self):
-        self.connector = sqlite3.connect('tournament_checkmate.db')
+        """ Object who will mannage the SQL request """
+
+        self.connector = sqlite3.connect('annexe/tournament_checkmate.db')
         self.cursor = self.connector.cursor()
 
-    # get the country from bdd
     def get_country(self):
+        """ Method for getting all the country 
+        
+        Returns:
+            list: list of all country
+        """
+
         self.cursor.execute('SELECT * FROM country')
         result = self.cursor.fetchall()
         return result
 
-    # get the town from bdd
     def get_town(self, country):
+        """ Method to get the town of the country selected
+
+        Args:
+            country (str): the country selected on the prev step
+
+        Returns:
+            list: list of all town in the country selected
+        """
+
         country = (country[0],)
         self.cursor.execute('SELECT * FROM town where id_country = ?', country)
         result = self.cursor.fetchall()
         return result
 
-    # get the place from bdd
     def get_location(self, town):
+        """ Method for get the location of a town
+
+        Args:
+            town (str): the town selected on the prev step
+
+        Returns:
+            list: all location of the town
+        """
+
         town = (town[0],)
         self.cursor.execute('SELECT * FROM location where id_town = ?', town)
         result = self.cursor.fetchall()
         return result
 
-    # create the tournament
     def create_tournament(self, data, players):
+        """ Method for save the tournament in bdd
+
+        Args:
+            data (list): list of all the tournament data
+            players (list): list of all players
+        """
+
         self.cursor.execute('SELECT id FROM tournament')
         result = self.cursor.fetchall()
         if len(result) > 0:
@@ -53,12 +81,49 @@ class SQL_function():
         for player in players:
             tmp = (id_tournament, player,)
             self.cursor.execute(
-            'INSERT INTO player_tournament VALUES(?,?)', tmp)
+                'INSERT INTO player_tournament VALUES(?,?)', tmp)
             self.connector.commit()
 
-
     def get_players(self, search):
-        request = f"SELECT * FROM player WHERE lastname LIKE '%{search}%' LIMIT 8;"
+        """ Method to get player
+
+        Args:
+            search (str): the piece of name from which we will start our search
+
+        Returns:
+            list: a list of max 8 name who look likes the search
+        """
+
+        request = f"SELECT * FROM player WHERE lastname LIKE '{search}%' LIMIT 8;"
         self.cursor.execute(request)
         result = self.cursor.fetchall()
         return result
+
+    def get_players_rank(self, players):
+        """ Method to get the ranked of the players order by the best
+
+        Args:
+            players (list): list of the players
+
+        Returns:
+            list: list of the players, order by their global rank
+        """
+
+        request = "SELECT id, name, lastname, global_rank FROM player WHERE"
+        for player in players:
+            request = request + f" id={player} OR"
+        request = request[:-3] + " ORDER BY global_rank;"
+        self.cursor.execute(request)
+        result = self.cursor.fetchall()
+        return result
+
+    def save_round(self, data):
+        """ Method to create the round
+
+        Args:
+            data (list): list of the data to reccord
+        """
+
+        self.cursor.execute(
+            'INSERT INTO round VALUES(?,?,?,?,?,?,?,?,?)', data)
+        self.connector.commit()

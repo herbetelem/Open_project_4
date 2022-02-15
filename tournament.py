@@ -1,13 +1,11 @@
 import pygame
 import math
 
-# create class tournament
-
-
 class Tournament:
 
     def __init__(self):
-        # var about the tournament
+        """ Object that will keep the data about the tournament """
+
         self.name = ""
         self.country = ""
         self.town = ""
@@ -18,3 +16,4 @@ class Tournament:
         self.players = []
         self.time = ""
         self.description = ""
+        self.created = False

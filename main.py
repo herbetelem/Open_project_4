@@ -40,8 +40,7 @@ step = {
     "country": "town",
     "town": "location",
     "location": "date",
-    "date": "turn",
-    "turn": "time",
+    "date": "time",
     "time": "description",
     "description": "player",
     "player": "end"
@@ -49,7 +48,7 @@ step = {
 while running:
 
     if game.is_launch:
-        game.update(screen)
+        game.update()
     else:
         # app the image of first menu
         screen.blit(background, (0, 0))
@@ -79,7 +78,7 @@ while running:
                     print('load')
 
             # manage the next step of creation of a tournament
-            if game.next_rect.collidepoint(event.pos):
+            if game.next_up and game.next_rect.collidepoint(event.pos):
                 if game.step == "country":
                     tmp_country = game.sql.get_country()
                     tmp_country = tmp_country[game.index_location]
@@ -108,47 +107,97 @@ while running:
                 elif game.step != "player":
                     game.step = step[game.step]
                     game.index_location = 0
+            elif game.next_up == False and game.start_rect.collidepoint(event.pos):
+                game.set_var_game()
+                game.tournament.created = True
 
-            # manage the selection of the date
-            if game.step == "date":
-                if game.day_rect.collidepoint(event.pos):
-                    if game.day == 31:
-                        game.day = 1
-                    else:
-                        game.day += 1
-                if game.month_rect.collidepoint(event.pos):
-                    if game.month == 12:
-                        game.month = 1
-                    else:
-                        game.month += 1
-                if game.year_rect.collidepoint(event.pos):
-                    game.year += 1
+            if game.next_up:
+                # manage the selection of the date
+                if game.step == "date":
+                    if game.day_rect.collidepoint(event.pos):
+                        if game.day == 31:
+                            game.day = 1
+                        else:
+                            game.day += 1
+                    if game.month_rect.collidepoint(event.pos):
+                        if game.month == 12:
+                            game.month = 1
+                        else:
+                            game.month += 1
+                    if game.year_rect.collidepoint(event.pos):
+                        game.year += 1
 
-            # manage the selection of turn
-            if game.step == "turn":
-                if game.more_rect.collidepoint(event.pos):
-                    if game.tournament.nb_turn < 4:
-                        game.tournament.nb_turn += 1
-                if game.less_rect.collidepoint(event.pos):
-                    if game.tournament.nb_turn > 1:
-                        game.tournament.nb_turn -= 1
+                # manage the selection of turn
+                if game.step == "turn":
+                    if game.more_rect.collidepoint(event.pos):
+                        if game.tournament.nb_turn < 4:
+                            game.tournament.nb_turn += 1
+                    if game.less_rect.collidepoint(event.pos):
+                        if game.tournament.nb_turn > 1:
+                            game.tournament.nb_turn -= 1
 
-            # manage the selection of time
-            if game.step == "time":
-                if game.choice_A_rect.collidepoint(event.pos):
-                    game.choice = 1
-                if game.choice_B_rect.collidepoint(event.pos):
-                    game.choice = 2
-                if game.choice_C_rect.collidepoint(event.pos):
-                    game.choice = 3
+                # manage the selection of time
+                if game.step == "time":
+                    if game.choice_A_rect.collidepoint(event.pos):
+                        game.choice = 1
+                    if game.choice_B_rect.collidepoint(event.pos):
+                        game.choice = 2
+                    if game.choice_C_rect.collidepoint(event.pos):
+                        game.choice = 3
 
-            if game.step == "player":
-                for button in game.tmp_players:
-                    if button.rect.collidepoint(event.pos):
-                        if button.id_player not in game.players and len(game.players_search) > 0:
-                            game.players.append(button.id_player)
-                            game.players_search = ""
-                            game.step = "player"
+                if game.step == "player":
+                    for button in game.tmp_players:
+                        if button.rect.collidepoint(event.pos):
+                            if button.id_player not in game.players and len(game.players_search) > 0:
+                                game.players.append(button.id_player)
+                                game.players_search = ""
+                                game.step = "player"
+
+            if game.next_up == False:
+                #  Manage Game desk 1
+                if game.deck_1_rect.collidepoint(event.pos):
+                    game.deck_1 = pygame.image.load('assets/match-nul.png')
+                    game.deck_1 = pygame.transform.scale(game.deck_1, (140, 140))
+                    game.round.match[0][2] = 0
+                
+                elif game.area_win_1.collidepoint(event.pos):
+                    game.deck_1 = pygame.image.load('assets/match-win-1.png')
+                    game.deck_1 = pygame.transform.scale(game.deck_1, (140, 140))
+                    game.round.match[0][2] = 1
+
+                elif game.area_win_2.collidepoint(event.pos):
+                    game.deck_1 = pygame.image.load('assets/match-win-2.png')
+                    game.deck_1 = pygame.transform.scale(game.deck_1, (140, 140))
+                    game.round.match[0][2] = 2
+                
+                #  Manage Game desk 2
+                elif game.deck_2_rect.collidepoint(event.pos):
+                    game.deck_2 = pygame.image.load('assets/match-nul.png')
+                    game.deck_2 = pygame.transform.scale(game.deck_2, (140, 140))
+                    game.round.match[1][2] = 0
+                
+                elif game.area_win_3.collidepoint(event.pos):
+                    game.deck_2 = pygame.image.load('assets/match-win-1.png')
+                    game.deck_2 = pygame.transform.scale(game.deck_2, (140, 140))
+                    game.round.match[1][2] = 1
+
+                elif game.area_win_4.collidepoint(event.pos):
+                    game.deck_2 = pygame.image.load('assets/match-win-2.png')
+                    game.deck_2 = pygame.transform.scale(game.deck_2, (140, 140))
+                    game.round.match[1][2] = 2
+
+                #  Manage Game desk 3
+                elif game.deck_3_rect.collidepoint(event.pos):
+                    game.deck_3 = pygame.image.load('assets/match-nul.png')
+                    game.deck_3 = pygame.transform.scale(game.deck_3, (140, 140))
+                    game.round.match[2][2] = 0
+
+                #  Manage Game desk 4
+                elif game.deck_4_rect.collidepoint(event.pos):
+                    game.deck_4 = pygame.image.load('assets/match-nul.png')
+                    game.deck_4 = pygame.transform.scale(game.deck_4, (140, 140))
+                    game.round.match[3][2] = 0
+
 
         # if use keyboard
         elif event.type == pygame.KEYDOWN:
@@ -160,11 +209,13 @@ while running:
                 for (l, value) in letters.items():
                     if touche[value]:
                         if game.step == "name":
-                            game.tournament.name = game.tournament.name + \
-                                str(l)
+                            if len(game.tournament.description) < 50:
+                                game.tournament.name = game.tournament.name + \
+                                    str(l)
                         elif game.step == "description":
-                            game.tournament.description = game.tournament.description + \
-                                str(l)
+                            if len(game.tournament.description) < 200:
+                                game.tournament.description = game.tournament.description + \
+                                    str(l)
                         elif game.step == "player":
                             game.players_search = game.players_search + str(l)
                 if event.key == pygame.K_SPACE:

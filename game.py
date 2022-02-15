@@ -148,6 +148,12 @@ class Game:
         self.deck_3_rect.y = 150
         self.player_5_rect = ''
         self.player_6_rect = ''
+        self.area_win_5 = pygame.Rect((650, 200), (150, 40))
+        self.area_rect_win_5 = pygame.Surface(self.area_win_5.size)
+        self.area_rect_win_5.set_alpha(0)
+        self.area_win_6 = pygame.Rect((1050, 200), (150, 40))
+        self.area_rect_win_6 = pygame.Surface(self.area_win_6.size)
+        self.area_rect_win_6.set_alpha(0)
 
         self.deck_4 = pygame.image.load('assets/match-no-result.png')
         self.deck_4 = pygame.transform.scale(self.deck_4, (140, 140))
@@ -156,6 +162,12 @@ class Game:
         self.deck_4_rect.y = 450
         self.player_7_rect = ''
         self.player_8_rect = ''
+        self.area_win_7 = pygame.Rect((650, 490), (150, 40))
+        self.area_rect_win_7 = pygame.Surface(self.area_win_7.size)
+        self.area_rect_win_7.set_alpha(0)
+        self.area_win_8 = pygame.Rect((1050, 490), (150, 40))
+        self.area_rect_win_8 = pygame.Surface(self.area_win_8.size)
+        self.area_rect_win_8.set_alpha(0)
 
     #  Method to manage all
     def update(self):
@@ -412,7 +424,7 @@ class Game:
         """ Method who will show the match of the actual round """
 
         self.print_sentence(f"Liste des matchs du Round {self.round.nb_turn + 1}", self.font, (400, 50))
-        # import pdb; pdb.set_trace()
+        
         # match 1
         self.print_sentence(f"{self.round.match[0][0].last_name[0]}.{self.round.match[0][0].name[:5]}", self.font, (50, 190))
         self.print_sentence(f"{self.round.match[0][1].last_name[0]}.{self.round.match[0][1].name[:5]}", self.font, (450, 190))
@@ -432,11 +444,15 @@ class Game:
         self.print_sentence(f"{self.round.match[2][0].last_name[0]}.{self.round.match[2][0].name[:5]}", self.font, (650, 190))
         self.print_sentence(f"{self.round.match[2][1].last_name[0]}.{self.round.match[2][1].name[:5]}", self.font, (1050, 190))
         self.screen.blit(self.deck_3, self.deck_3_rect)
+        self.screen.blit(self.area_rect_win_5, self.area_win_5)
+        self.screen.blit(self.area_rect_win_6, self.area_win_6)
 
         # match 4
         self.print_sentence(f"{self.round.match[3][0].last_name[0]}.{self.round.match[3][0].name[:5]}", self.font, (650, 490))
         self.print_sentence(f"{self.round.match[3][1].last_name[0]}.{self.round.match[3][1].name[:5]}", self.font, (1050, 490))
         self.screen.blit(self.deck_4, self.deck_4_rect)
+        self.screen.blit(self.area_rect_win_7, self.area_win_7)
+        self.screen.blit(self.area_rect_win_8, self.area_win_8)
 
     def generate_round(self):
         """ Method who will generate the round """

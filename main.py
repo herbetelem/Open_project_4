@@ -108,9 +108,10 @@ while running:
                     game.step = step[game.step]
                     game.index_location = 0
             elif game.next_up == False and game.start_rect.collidepoint(event.pos):
-                game.set_var_game()
-                game.tournament.created = True
-
+                if(game.tournament.created == False):
+                    game.set_var_game()
+                    game.tournament.created = True
+                    
             if game.next_up:
                 # manage the selection of the date
                 if game.step == "date":
@@ -171,7 +172,7 @@ while running:
                     game.round.match[0][2] = 2
                 
                 #  Manage Game desk 2
-                elif game.deck_2_rect.collidepoint(event.pos):
+                if game.deck_2_rect.collidepoint(event.pos):
                     game.deck_2 = pygame.image.load('assets/match-nul.png')
                     game.deck_2 = pygame.transform.scale(game.deck_2, (140, 140))
                     game.round.match[1][2] = 0
@@ -187,16 +188,36 @@ while running:
                     game.round.match[1][2] = 2
 
                 #  Manage Game desk 3
-                elif game.deck_3_rect.collidepoint(event.pos):
+                if game.deck_3_rect.collidepoint(event.pos):
                     game.deck_3 = pygame.image.load('assets/match-nul.png')
                     game.deck_3 = pygame.transform.scale(game.deck_3, (140, 140))
                     game.round.match[2][2] = 0
+                
+                elif game.area_win_5.collidepoint(event.pos):
+                    game.deck_3 = pygame.image.load('assets/match-win-1.png')
+                    game.deck_3 = pygame.transform.scale(game.deck_3, (140, 140))
+                    game.round.match[2][2] = 1
+
+                elif game.area_win_6.collidepoint(event.pos):
+                    game.deck_3 = pygame.image.load('assets/match-win-2.png')
+                    game.deck_3 = pygame.transform.scale(game.deck_3, (140, 140))
+                    game.round.match[2][2] = 2
 
                 #  Manage Game desk 4
-                elif game.deck_4_rect.collidepoint(event.pos):
+                if game.deck_4_rect.collidepoint(event.pos):
                     game.deck_4 = pygame.image.load('assets/match-nul.png')
                     game.deck_4 = pygame.transform.scale(game.deck_4, (140, 140))
                     game.round.match[3][2] = 0
+                
+                elif game.area_win_7.collidepoint(event.pos):
+                    game.deck_4 = pygame.image.load('assets/match-win-1.png')
+                    game.deck_4 = pygame.transform.scale(game.deck_4, (140, 140))
+                    game.round.match[3][2] = 1
+
+                elif game.area_win_8.collidepoint(event.pos):
+                    game.deck_4 = pygame.image.load('assets/match-win-2.png')
+                    game.deck_4 = pygame.transform.scale(game.deck_4, (140, 140))
+                    game.round.match[3][2] = 2
 
 
         # if use keyboard

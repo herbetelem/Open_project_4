@@ -22,8 +22,6 @@ class Round:
 
         self.sql = SQL_function()
         self.players = []
-        self.group_A = []
-        self.group_B = []
         self.date_start = datetime.now().strftime('%Y-%m-%d')
         self.date_end = ""
         self.hour_start =  datetime.now().strftime('%H-%M')
@@ -32,12 +30,13 @@ class Round:
         self.match = [[1, 2, False], [3, 4, False], [5, 6, False], [7, 8, False]]
         self.match_done = []
         self.nb_turn = 0
-        players = self.sort_players(players)
+        players = self.get_players_info(players)
         for player in players:
             self.players.append(Player(player[0], player[2], player[1], player[3]))
+        self.settings = False
 
-    def sort_players(self, players):
-        """ method to sort the player by their global_rankd
+    def get_players_info(self, players):
+        """ method to get the players information about their global_rankd
 
         Args:
             players (list): list of players
@@ -56,6 +55,7 @@ class Round:
         """ Methode to generate the round """
 
         index_match = 0
+        self.sort_by_rank()
         # set up all false cause for the new round no one have an adv for now
         list_adv = [False, False, False, False, False, False, False, False]
         list_order = [4, 5, 6, 7, 3, 2, 1, 0]
@@ -66,52 +66,14 @@ class Round:
                     is_player_choosed = True
             
             if not is_player_choosed and index_match < 4:
-                # for order in list_order:
-                #     if self.players[order] not in player.matched and not list_adv[order]:
-                #         self.match[index_match][0] = player
-                #         self.match[index_match][1] = self.players[order]
-                #         list_adv[order] = True
-                #         is_player_choosed = True
-                if self.players[4] not in player.matched and not list_adv[4]:
-                    self.match[index_match][0] = player
-                    self.match[index_match][1] = self.players[4]
-                    list_adv[4] = True
-                    is_player_choosed = True
-                elif self.players[5] not in player.matched and not list_adv[5]:
-                    self.match[index_match][0] = player
-                    self.match[index_match][1] = self.players[5]
-                    list_adv[5] = True
-                    is_player_choosed = True
-                elif self.players[6] not in player.matched and not list_adv[6]:
-                    self.match[index_match][0] = player
-                    self.match[index_match][1] = self.players[6]
-                    list_adv[6] = True
-                    is_player_choosed = True
-                elif self.players[7] not in player.matched and not list_adv[7]:
-                    self.match[index_match][0] = player
-                    self.match[index_match][1] = self.players[7]
-                    list_adv[7] = True
-                    is_player_choosed = True
-                elif self.players[3] not in player.matched and not list_adv[3]:
-                    self.match[index_match][0] = player
-                    self.match[index_match][1] = self.players[3]
-                    list_adv[3] = True
-                    is_player_choosed = True
-                elif self.players[2] not in player.matched and not list_adv[2]:
-                    self.match[index_match][0] = player
-                    self.match[index_match][1] = self.players[2]
-                    list_adv[2] = True
-                    is_player_choosed = True
-                elif self.players[1] not in player.matched and not list_adv[1]:
-                    self.match[index_match][0] = player
-                    self.match[index_match][1] = self.players[1]
-                    list_adv[1] = True
-                    is_player_choosed = True
-                elif self.players[0] not in player.matched and not list_adv[0]:
-                    self.match[index_match][0] = player
-                    self.match[index_match][1] = self.players[0]
-                    list_adv[0] = True
-                    is_player_choosed = True
+                found = False
+                for order in list_order:
+                    if self.players[order] not in player.matched and not list_adv[order] and not found:
+                        self.match[index_match][0] = player
+                        self.match[index_match][1] = self.players[order]
+                        list_adv[order] = True
+                        is_player_choosed = True
+                        found = True
                 index_match += 1
 
     def validate_round(self, results):
@@ -121,18 +83,18 @@ class Round:
             results (list): list of result of the match
         """
 
+        score = {
+            3: [1, 1],
+            1: [2, 0],
+            2: [0, 2],
+        }
+
         for index in range(4):
-            print(f"{self.match[index][0].id} {self.match[index][1].id}")
-            if results[index] == 0:
-                self.match[index][0].score += 1
-                self.match[index][1].score += 1
-            elif results[index] == 1:
-                self.match[index][0].score += 2
-                self.match[index][1].score += 0
-            elif results[index] == 2:
-                self.match[index][0].score += 0
-                self.match[index][1].score += 2
+            # attribution of score
+            self.match[index][0].score += score[results[index]][0]
+            self.match[index][1].score += score[results[index]][1]
             
+            # add in the history of player their match
             self.match[index][0].matched.append(self.match[index][1])
             self.match[index][1].matched.append(self.match[index][0])
         self.match = [[1, 2, False], [3, 4, False], [5, 6, False], [7, 8, False]]
@@ -148,44 +110,29 @@ class Round:
 
     def sort_by_rank(self):
         """ Method to sort the players first by their score, then by their global rank """
-
-        for player in self.players:
-            player.global_rank = player.global_rank * -1
-        self.players.sort(key=lambda x: (x.score, x.global_rank) , reverse=True)
-        for player in self.players:
-            player.global_rank = player.global_rank * -1
-        self.group_A = []
-        self.group_B = []
-        for i in range(8):
-            if i < 4:
-                self.players[i].pool = 1
-                self.group_A.append(self.players[i])
-            else:
-                self.players[i].pool = 2
-                self.group_B.append(self.players[i])
-            self.players[i].pool_rank = i
+        self.players.sort(key=lambda x: (x.score, -x.global_rank) , reverse=True)
 
 
 # item = Round([301, 302, 303, 304, 205, 306, 208, 308])
 # item.generate_round()
-# item.validate_round([1,0,2,1])
+# item.validate_round([1,3,2,1])
 
 # item.generate_round()
-# item.validate_round([1,0,2,1])
+# item.validate_round([1,3,2,1])
 
 # item.generate_round()
-# item.validate_round([1,0,2,1])
+# item.validate_round([1,3,2,1])
 
 # item.generate_round()
-# item.validate_round([1,0,2,1])
+# item.validate_round([1,3,2,1])
 
 # item.generate_round()
-# item.validate_round([1,0,2,1])
+# item.validate_round([1,3,2,1])
 
 # item.generate_round()
-# item.validate_round([1,0,2,1])
+# item.validate_round([1,3,2,1])
 
 # item.generate_round()
-# item.validate_round([1,0,2,1])
+# item.validate_round([1,3,2,1])
 
 # item.print_score()

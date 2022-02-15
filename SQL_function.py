@@ -13,7 +13,7 @@ class SQL_function():
 
     def get_country(self):
         """ Method for getting all the country 
-        
+
         Returns:
             list: list of all country
         """

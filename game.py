@@ -16,7 +16,7 @@ class Game:
         Args:
             screen (object pygame): the object of the screen
         """
-        
+
         self.set_var_program(screen)
         self.set_var_tournament()
 
@@ -35,13 +35,11 @@ class Game:
         self.sql = SQL_function()
 
         # set the different background
-        self.background = pygame.image.load('assets/bg-2.jpeg')
-        self.background = pygame.transform.scale(self.background, (1280, 720))
-        self.background_2 = pygame.image.load('assets/bg-3.jpeg')
-        self.background_2 = pygame.transform.scale(
-            self.background_2, (1280, 720))
+        self.background = self.set_an_image('assets/bg-2.jpeg', (1280, 720))
+        self.background_2 = self.set_an_image('assets/bg-3.jpeg', (1280, 720))
 
         # set the button next or start
+        self.next = self.set_an_image('assets/button/next.png', '400, 150')
         self.next = pygame.image.load('assets/button/next.png')
         self.next = pygame.transform.scale(self.next, (400, 150))
         self.next_rect = self.next.get_rect()
@@ -110,64 +108,90 @@ class Game:
     def set_var_game(self):
         """ Method who will set the variables that will be used for game """
 
+        self.game_statut = True
+
+        self.validate = pygame.image.load('assets/button/validate.png')
+        self.validate = pygame.transform.scale(self.validate, (150, 50))
+        self.validate_rect = self.validate.get_rect()
+        self.validate_rect.x = 550
+        self.validate_rect.y = 650
+        self.update_score = pygame.image.load('assets/button/setting.png')
+        self.update_score = pygame.transform.scale(self.update_score, (50, 50))
+        self.update_score_rect = self.update_score.get_rect()
+        self.update_score_rect.x = 750
+        self.update_score_rect.y = 650
+
         self.round = Round(self.players)
         self.round.generate_round()
 
-        self.deck_1 = pygame.image.load('assets/match-no-result.png')
-        self.deck_1 = pygame.transform.scale(self.deck_1, (140, 140))
-        self.deck_1_rect = self.deck_1.get_rect()
-        self.deck_1_rect.x = 275
-        self.deck_1_rect.y = 150
-        self.player_1_rect = ''
-        self.player_2_rect = ''
-        self.area_win_1 = pygame.Rect((50, 200), (150, 40))
-        self.area_rect_win_1 = pygame.Surface(self.area_win_1.size)
-        self.area_rect_win_1.set_alpha(0)
-        self.area_win_2 = pygame.Rect((450, 200), (150, 40))
-        self.area_rect_win_2 = pygame.Surface(self.area_win_2.size)
-        self.area_rect_win_2.set_alpha(0)
+        deck_tmp = self.generate_var_game(275, 150, 50, 200, 450, 200)
+        self.deck_1 = deck_tmp[0]
+        self.deck_1_rect = deck_tmp[1]
+        self.player_1_rect = deck_tmp[2]
+        self.player_2_rect = deck_tmp[3]
+        self.area_win_1 = deck_tmp[4]
+        self.area_rect_win_1 = deck_tmp[5]
+        self.area_win_2 = deck_tmp[6]
+        self.area_rect_win_2 = deck_tmp[7]
 
-        self.deck_2 = pygame.image.load('assets/match-no-result.png')
-        self.deck_2 = pygame.transform.scale(self.deck_2, (140, 140))
-        self.deck_2_rect = self.deck_2.get_rect()
-        self.deck_2_rect.x = 275
-        self.deck_2_rect.y = 450
-        self.player_3_rect = ''
-        self.player_4_rect = ''
-        self.area_win_3 = pygame.Rect((50, 490), (150, 40))
-        self.area_rect_win_3 = pygame.Surface(self.area_win_3.size)
-        self.area_rect_win_3.set_alpha(0)
-        self.area_win_4 = pygame.Rect((450, 490), (150, 40))
-        self.area_rect_win_4 = pygame.Surface(self.area_win_4.size)
-        self.area_rect_win_4.set_alpha(0)
+        deck_tmp = self.generate_var_game(275, 450, 50, 490, 450, 490)
+        self.deck_2 = deck_tmp[0]
+        self.deck_2_rect = deck_tmp[1]
+        self.player_3_rect = deck_tmp[2]
+        self.player_4_rect = deck_tmp[3]
+        self.area_win_3 = deck_tmp[4]
+        self.area_rect_win_3 = deck_tmp[5]
+        self.area_win_4 = deck_tmp[6]
+        self.area_rect_win_4 = deck_tmp[7]
 
-        self.deck_3 = pygame.image.load('assets/match-no-result.png')
-        self.deck_3 = pygame.transform.scale(self.deck_3, (140, 140))
-        self.deck_3_rect = self.deck_3.get_rect()
-        self.deck_3_rect.x = 875
-        self.deck_3_rect.y = 150
-        self.player_5_rect = ''
-        self.player_6_rect = ''
-        self.area_win_5 = pygame.Rect((650, 200), (150, 40))
-        self.area_rect_win_5 = pygame.Surface(self.area_win_5.size)
-        self.area_rect_win_5.set_alpha(0)
-        self.area_win_6 = pygame.Rect((1050, 200), (150, 40))
-        self.area_rect_win_6 = pygame.Surface(self.area_win_6.size)
-        self.area_rect_win_6.set_alpha(0)
+        deck_tmp = self.generate_var_game(875, 150, 650, 200, 1050, 200)
+        self.deck_3 = deck_tmp[0]
+        self.deck_3_rect = deck_tmp[1]
+        self.player_5_rect = deck_tmp[2]
+        self.player_6_rect = deck_tmp[3]
+        self.area_win_5 = deck_tmp[4]
+        self.area_rect_win_5 = deck_tmp[5]
+        self.area_win_6 = deck_tmp[6]
+        self.area_rect_win_6 = deck_tmp[7]
 
-        self.deck_4 = pygame.image.load('assets/match-no-result.png')
-        self.deck_4 = pygame.transform.scale(self.deck_4, (140, 140))
-        self.deck_4_rect = self.deck_4.get_rect()
-        self.deck_4_rect.x = 875
-        self.deck_4_rect.y = 450
-        self.player_7_rect = ''
-        self.player_8_rect = ''
-        self.area_win_7 = pygame.Rect((650, 490), (150, 40))
-        self.area_rect_win_7 = pygame.Surface(self.area_win_7.size)
-        self.area_rect_win_7.set_alpha(0)
-        self.area_win_8 = pygame.Rect((1050, 490), (150, 40))
-        self.area_rect_win_8 = pygame.Surface(self.area_win_8.size)
-        self.area_rect_win_8.set_alpha(0)
+        deck_tmp = self.generate_var_game(875, 450, 650, 490, 1050, 490)
+        self.deck_4 = deck_tmp[0]
+        self.deck_4_rect = deck_tmp[1]
+        self.player_7_rect = deck_tmp[2]
+        self.player_8_rect = deck_tmp[3]
+        self.area_win_7 = deck_tmp[4]
+        self.area_rect_win_7 = deck_tmp[5]
+        self.area_win_8 = deck_tmp[6]
+        self.area_rect_win_8 = deck_tmp[7]
+
+    def generate_var_game(self, deck_rect_x, deck_rect_y, area_A_x, area_A_y, area_B_x, area_B_y):
+        """Method to generate the desck and player pygame object
+
+        Args:
+            deck_rect_x (int): rect X of the desk
+            deck_rect_y (int): rect Y of the desk
+            area_A_x (int): rect X of the Player A
+            area_A_y (int): rect Y of the Player A
+            area_B_x (int): rect X of the Player B
+            area_B_y (int): rect Y of the Player B
+
+        Returns:
+            tuple: all pygame object
+        """
+
+        deck = pygame.image.load('assets/match-no-result.png')
+        deck = pygame.transform.scale(deck, (140, 140))
+        deck_rect = deck.get_rect()
+        deck_rect.x = deck_rect_x
+        deck_rect.y = deck_rect_y
+        area_win_A = pygame.Rect((area_A_x, area_A_y), (150, 40))
+        area_rect_win_A = pygame.Surface(area_win_A.size)
+        area_rect_win_A.set_alpha(0)
+        area_win_B = pygame.Rect((area_B_x, area_B_y), (150, 40))
+        area_rect_win_B = pygame.Surface(area_win_B.size)
+        area_rect_win_B.set_alpha(0)
+
+        return deck, deck_rect, '', '', area_win_A, area_rect_win_A, area_win_B, area_rect_win_B
 
     #  Method to manage all
     def update(self):
@@ -176,7 +200,12 @@ class Game:
         if self.tournament.created:
             # app the background
             self.screen.blit(self.background_2, (0, 0))
-            self.show_match()
+            if self.round.settings:
+                self.show_settings()
+            elif self.game_statut:
+                self.show_match()
+            else:
+                self.show_result()
         else:
             # app the background
             self.screen.blit(self.background, (0, 0))
@@ -203,9 +232,12 @@ class Game:
     def create_tournament_country(self):
         """ Method for select the tournament's country """
 
+        # suprimer les 2 methode d'en dessous, et faire celle si generique avec un elif degueu pour country ville et location
+
         sentence = "Veuillez choisir le pays"
         self.print_sentence(sentence)
         self.screen.blit(self.next, self.next_rect)
+
         country = self.sql.get_country()
         country_tmp = pygame.font.Font(None, 130).render(
             "<  " + country[self.index_location][1] + "  >",
@@ -264,6 +296,8 @@ class Game:
         """ Method for se't up the rect of time management """
 
         # set up the day month and year in pygame format
+
+        #  RENDRE GENERIQUE
         font_date = pygame.font.Font(None, 70)
         self.day = int(datetime.now().strftime('%d'))
         self.day_font = font_date.render(str(self.day), 1, (255, 255, 255))
@@ -284,6 +318,8 @@ class Game:
     def set_round_time(self):
         """ Methode for update the display of the time selector """
 
+
+        #  rendre generique avec un dico
         if(self.choice == 1):
             self.choice_A = pygame.image.load(
                 'assets/button/round_selected.png')
@@ -378,7 +414,7 @@ class Game:
 
             # check if the player has been already selected or if the button have to be seen
             for tmp in self.tmp_players:
-                if tmp.show == True:
+                if tmp.show:
                     if tmp.id_player not in self.players:
                         self.screen.blit(tmp.img, tmp.rect)
 
@@ -398,6 +434,7 @@ class Game:
     def resume_tournament(self):
         """Method to resume the informations of the tournament """
 
+        # test generique ([label, valeur, position])
         self.print_sentence("Résumé du tournoi",
                             pygame.font.Font(None, 35), (340, 50))
         self.print_sentence(
@@ -423,40 +460,79 @@ class Game:
     def show_match(self):
         """ Method who will show the match of the actual round """
 
-        self.print_sentence(f"Liste des matchs du Round {self.round.nb_turn + 1}", self.font, (400, 50))
-        
+        self.print_sentence(
+            f"Liste des matchs du Round {self.round.nb_turn + 1}", self.font, (400, 50))
+
         # match 1
-        self.print_sentence(f"{self.round.match[0][0].last_name[0]}.{self.round.match[0][0].name[:5]}", self.font, (50, 190))
-        self.print_sentence(f"{self.round.match[0][1].last_name[0]}.{self.round.match[0][1].name[:5]}", self.font, (450, 190))
+        self.print_sentence(
+            f"{self.round.match[0][0].last_name[0]}.{self.round.match[0][0].name[:5]}", self.font, (50, 190))
+        self.print_sentence(
+            f"{self.round.match[0][1].last_name[0]}.{self.round.match[0][1].name[:5]}", self.font, (450, 190))
         self.screen.blit(self.deck_1, self.deck_1_rect)
         self.screen.blit(self.area_rect_win_1, self.area_win_1)
         self.screen.blit(self.area_rect_win_2, self.area_win_2)
 
-
         # match 2
-        self.print_sentence(f"{self.round.match[1][0].last_name[0]}.{self.round.match[1][0].name[:5]}", self.font, (50, 490))
-        self.print_sentence(f"{self.round.match[1][1].last_name[0]}.{self.round.match[1][1].name[:5]}", self.font, (450, 490))
+        self.print_sentence(
+            f"{self.round.match[1][0].last_name[0]}.{self.round.match[1][0].name[:5]}", self.font, (50, 490))
+        self.print_sentence(
+            f"{self.round.match[1][1].last_name[0]}.{self.round.match[1][1].name[:5]}", self.font, (450, 490))
         self.screen.blit(self.deck_2, self.deck_2_rect)
         self.screen.blit(self.area_rect_win_3, self.area_win_3)
         self.screen.blit(self.area_rect_win_4, self.area_win_4)
 
         # match 3
-        self.print_sentence(f"{self.round.match[2][0].last_name[0]}.{self.round.match[2][0].name[:5]}", self.font, (650, 190))
-        self.print_sentence(f"{self.round.match[2][1].last_name[0]}.{self.round.match[2][1].name[:5]}", self.font, (1050, 190))
+        self.print_sentence(
+            f"{self.round.match[2][0].last_name[0]}.{self.round.match[2][0].name[:5]}", self.font, (650, 190))
+        self.print_sentence(
+            f"{self.round.match[2][1].last_name[0]}.{self.round.match[2][1].name[:5]}", self.font, (1050, 190))
         self.screen.blit(self.deck_3, self.deck_3_rect)
         self.screen.blit(self.area_rect_win_5, self.area_win_5)
         self.screen.blit(self.area_rect_win_6, self.area_win_6)
 
         # match 4
-        self.print_sentence(f"{self.round.match[3][0].last_name[0]}.{self.round.match[3][0].name[:5]}", self.font, (650, 490))
-        self.print_sentence(f"{self.round.match[3][1].last_name[0]}.{self.round.match[3][1].name[:5]}", self.font, (1050, 490))
+        self.print_sentence(
+            f"{self.round.match[3][0].last_name[0]}.{self.round.match[3][0].name[:5]}", self.font, (650, 490))
+        self.print_sentence(
+            f"{self.round.match[3][1].last_name[0]}.{self.round.match[3][1].name[:5]}", self.font, (1050, 490))
         self.screen.blit(self.deck_4, self.deck_4_rect)
         self.screen.blit(self.area_rect_win_7, self.area_win_7)
         self.screen.blit(self.area_rect_win_8, self.area_win_8)
 
-    def generate_round(self):
-        """ Method who will generate the round """
-        self.round.generate_round()
+        # button validate and settings
+        self.screen.blit(self.update_score, self.update_score_rect)
+        tmp_check = True
+        for match in self.round.match:
+            if match[2] < 1:
+                tmp_check = False
+
+        if tmp_check:
+            self.screen.blit(self.validate, self.validate_rect)
+
+    def show_result(self):
+        """ Method to show the result of the tournament
+        """
+
+        self.round.sort_by_rank()
+        x = 40
+        y = 40
+        for index in range(1, 8):
+            self.print_sentence(
+                f"Place {index}: {self.round.players[index-1].name} {self.round.players[index-1].last_name}, score = {self.round.players[index-1].score}", self.font, (x, y))
+            y += 60
+
+
+    def show_settings(self):
+        """ Method for show the score during a tournament and edit it """
+
+        self.round.sort_by_rank()
+        x = 40
+        y = 40
+        for index in range(1, 8):
+            self.print_sentence(
+                f"Place {index}: {self.round.players[index-1].name} {self.round.players[index-1].last_name}, score = {self.round.players[index-1].score}", self.font, (x, y))
+            y += 60
+        self.screen.blit(self.validate, self.validate_rect)
 
     # Method general
     def print_sentence(self, sentence, font=False, position=(340, 100)):
@@ -468,9 +544,37 @@ class Game:
             position (tuple, optional): the position of the print. Defaults to (340, 100).
         """
 
-        if font == False:
-            text = self.font.render(sentence, 1, (255, 255, 255))
-            self.screen.blit(text, position)
-        else:
-            text = font.render(sentence, 1, (255, 255, 255))
-            self.screen.blit(text, position)
+        if not font:
+            font = self.font
+        text = font.render(sentence, 1, (255, 255, 255))
+        self.screen.blit(text, position)
+
+    def set_an_image(self, path, size=False):
+        """ Method to set up an image
+
+        Args:
+            path (str): path to the image
+            size (bool, optional): size of the images
+
+        Returns:
+            object: object img pygame
+        """
+        img = pygame.image.load(path)
+        if size:
+            img = pygame.transform.scale(img, size)
+        return img
+
+    def set_an_image(self, img, x, y):
+        """ Method to set up an image
+
+        Args:
+            path (str): path to the image
+            size (bool, optional): size of the images
+
+        Returns:
+            object: object img pygame resized
+        """
+        img_rect = img.get_rect()
+        img_rect.x = x
+        img_rect.y = y
+        return img_rect

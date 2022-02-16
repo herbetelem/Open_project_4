@@ -1,4 +1,5 @@
 import sqlite3
+from turtle import pd
 
 # class who will do the request SQL
 
@@ -84,6 +85,12 @@ class SQL_function():
                 'INSERT INTO player_tournament VALUES(?,?)', tmp)
             self.connector.commit()
 
+    def get_tournament_id(self, data):
+        request = f"SELECT id FROM tournament WHERE name='{data[0]}' AND description='{data[1]}' AND date='{data[2]}';"
+        self.cursor.execute(request)
+        result = self.cursor.fetchall()
+        return result
+
     def get_players(self, search):
         """ Method to get player
 
@@ -127,3 +134,35 @@ class SQL_function():
         self.cursor.execute(
             'INSERT INTO round VALUES(?,?,?,?,?,?,?,?,?)', data)
         self.connector.commit()
+
+    
+    def save_score(self, data):
+        """ Method to create the round
+
+        Args:
+            data (list): list of the data to reccord (player_id, tournament_id, score)
+        """
+
+        self.cursor.execute(
+            'INSERT INTO score VALUES(?,?,?)', data)
+        self.connector.commit()
+
+    def get_prev_tournament(self):
+        """ Method for getting all the tournament who have been done 
+
+        Returns:
+            list: list of all tournament done
+        """
+
+        self.cursor.execute('SELECT tournament_id FROM score GROUP BY tournament_id;')
+        result = self.cursor.fetchall()
+        results = []
+        for index in result:
+            self.cursor.execute(f"SELECT id, name, date FROM tournament WHERE id={index[0]} ORDER BY id DESC LIMIT 6;")
+            results.append(self.cursor.fetchall())
+        return results
+
+    def get_players_score(self, id_tournament):
+        self.cursor.execute(f"SELECT name, lastname, score FROM score INNER JOIN player ON score.player_id = player.id WHERE tournament_id = {id_tournament}")
+        result = self.cursor.fetchall()
+        return result

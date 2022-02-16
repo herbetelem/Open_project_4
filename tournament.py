@@ -17,3 +17,4 @@ class Tournament:
         self.time = ""
         self.description = ""
         self.created = False
+        self.id = 0

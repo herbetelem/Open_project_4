@@ -1,9 +1,11 @@
+from turtle import pd
 import pygame
 from tournament import Tournament
 from SQL_function import SQL_function
 from add_player import Add_player
 from datetime import datetime
 from round import Round
+from load_a_tournament import Load_a_tournament
 
 # create class game
 
@@ -32,30 +34,30 @@ class Game:
         self.is_launch = False
         self.screen = screen
         self.step = False
+        self.load = False
+        self.match_load = False
+        self.history_button = []
         self.sql = SQL_function()
 
         # set the different background
         self.background = self.set_an_image('assets/bg-2.jpeg', (1280, 720))
         self.background_2 = self.set_an_image('assets/bg-3.jpeg', (1280, 720))
+        self.background_3 = self.set_an_image('assets/bg-4.jpeg', (1280, 720))
 
         # set the button next or start
-        self.next = self.set_an_image('assets/button/next.png', '400, 150')
-        self.next = pygame.image.load('assets/button/next.png')
-        self.next = pygame.transform.scale(self.next, (400, 150))
-        self.next_rect = self.next.get_rect()
-        self.next_rect.x = (1280 - 400) / 2
-        self.next_rect.y = 500
-        self.start = pygame.image.load('assets/button/start.png')
-        self.start = pygame.transform.scale(self.start, (400, 150))
-        self.start_rect = self.start.get_rect()
-        self.start_rect.x = (1280 - 400) / 2
-        self.start_rect.y = 500
-        self.search_button = pygame.image.load('assets/button/search.png')
-        self.search_button = pygame.transform.scale(
-            self.search_button, (50, 50))
-        self.search_button_rect = self.search_button.get_rect()
-        self.search_button_rect.x = 940
-        self.search_button_rect.y = 125
+        self.next = self.set_an_image('assets/button/next.png', (400, 150))
+        self.next_rect = self.set_an_image_rec(
+            self.next, (1280 - 400) / 2, 500)
+        self.start = self.set_an_image('assets/button/start.png', (400, 150))
+        self.start_rect = self.set_an_image_rec(
+            self.start, (1280 - 400) / 2, 500)
+        self.search_button = self.set_an_image(
+            'assets/button/search.png', (50, 50))
+        self.search_button_rect = self.set_an_image_rec(
+            self.search_button, 940, 125)
+        self.prev = self.set_an_image('assets/button/prev.png', (400, 150))
+        self.prev_rect = self.set_an_image_rec(self.prev, (1280 - 400) / 2, 500)
+
         self.next_up = True
 
         # set the font
@@ -70,6 +72,9 @@ class Game:
         self.index_location = 0
         self.set_time()
         self.choice = 1
+        self.choice_A = ""
+        self.choice_B = ""
+        self.choice_C = ""
         self.set_round_time()
 
         # set the button more and less
@@ -94,9 +99,9 @@ class Game:
         # all method for the create
         self.switch_tournament = {
             "name": self.create_tournament_name,
-            "country": self.create_tournament_country,
-            "town": self.create_tournament_town,
-            "location": self.create_tournament_location,
+            "country": self.create_tournament_place,
+            "town": self.create_tournament_place,
+            "location": self.create_tournament_place,
             "date": self.create_tournament_date,
             "time": self.create_tournament_time,
             "description": self.create_tournament_description,
@@ -109,19 +114,16 @@ class Game:
         """ Method who will set the variables that will be used for game """
 
         self.game_statut = True
-
-        self.validate = pygame.image.load('assets/button/validate.png')
-        self.validate = pygame.transform.scale(self.validate, (150, 50))
-        self.validate_rect = self.validate.get_rect()
-        self.validate_rect.x = 550
-        self.validate_rect.y = 650
-        self.update_score = pygame.image.load('assets/button/setting.png')
-        self.update_score = pygame.transform.scale(self.update_score, (50, 50))
-        self.update_score_rect = self.update_score.get_rect()
-        self.update_score_rect.x = 750
-        self.update_score_rect.y = 650
-
-        self.round = Round(self.players)
+        self.validate = self.set_an_image(
+            'assets/button/validate.png', (150, 50))
+        self.validate_rect = self.set_an_image_rec(self.validate, 550, 650)
+        self.update_score = self.set_an_image(
+            'assets/button/setting.png', (50, 50))
+        self.update_score_rect = self.set_an_image_rec(
+            self.update_score, 750, 650)
+        self.save = self.set_an_image('assets/button/save.png', (150, 50))
+        self.save_rect = self.set_an_image_rec(self.save, 600, 600)
+        self.round = Round(self.players, self.tournament.id)
         self.round.generate_round()
 
         deck_tmp = self.generate_var_game(275, 150, 50, 200, 450, 200)
@@ -164,6 +166,8 @@ class Game:
         self.area_win_8 = deck_tmp[6]
         self.area_rect_win_8 = deck_tmp[7]
 
+        self.player_selected = 0
+
     def generate_var_game(self, deck_rect_x, deck_rect_y, area_A_x, area_A_y, area_B_x, area_B_y):
         """Method to generate the desck and player pygame object
 
@@ -178,12 +182,8 @@ class Game:
         Returns:
             tuple: all pygame object
         """
-
-        deck = pygame.image.load('assets/match-no-result.png')
-        deck = pygame.transform.scale(deck, (140, 140))
-        deck_rect = deck.get_rect()
-        deck_rect.x = deck_rect_x
-        deck_rect.y = deck_rect_y
+        deck = self.set_an_image('assets/match-no-result.png', (140, 140))
+        deck_rect = self.set_an_image_rec(deck, deck_rect_x, deck_rect_y)
         area_win_A = pygame.Rect((area_A_x, area_A_y), (150, 40))
         area_rect_win_A = pygame.Surface(area_win_A.size)
         area_rect_win_A.set_alpha(0)
@@ -196,8 +196,10 @@ class Game:
     #  Method to manage all
     def update(self):
         """ Method who will call the function for the actual step of the programm """
-
-        if self.tournament.created:
+        if self.load:
+            self.screen.blit(self.background_3, (0, 0))
+            self.show_prev_matchs()
+        elif self.tournament.created:
             # app the background
             self.screen.blit(self.background_2, (0, 0))
             if self.round.settings:
@@ -212,6 +214,7 @@ class Game:
             # if we want to create a tournament
             self.create_tournament()
 
+
     # Method about the creation
     def create_tournament(self):
         """ Method to manage the step of creation of the Tournament """
@@ -221,59 +224,44 @@ class Game:
     def create_tournament_name(self):
         """ Method for create the tournament's name """
 
-        self.print_sentence("Veuillez entrer le nom du tournoi")
-        input = pygame.image.load('assets/button/input.png')
-        input = pygame.transform.scale(input, (700, 150))
+        self.print_sentence("Please enter the name of the tournament")
+        input = self.set_an_image('assets/button/input.png', (700, 150))
         self.screen.blit(input, (((1280 - 700) / 2), 300))
         text = self.font.render(self.tournament.name, 1, (255, 255, 255))
         self.screen.blit(text, (((1280 - 700) / 2 + 50), 340))
         self.screen.blit(self.next, self.next_rect)
 
-    def create_tournament_country(self):
+    def create_tournament_place(self):
         """ Method for select the tournament's country """
 
-        # suprimer les 2 methode d'en dessous, et faire celle si generique avec un elif degueu pour country ville et location
+        if self.step == "country":
+            sentence = "Please, choose the country"
+            self.print_sentence(sentence)
+            self.screen.blit(self.next, self.next_rect)
+            data = self.sql.get_country()
+        elif self.step == "town":
+            sentence = "Please, choose the town"
+            self.print_sentence(sentence)
+            self.screen.blit(self.next, self.next_rect)
+            data = self.sql.get_town(self.tournament.country)
+        elif self.step == "location":
+            sentence = "Please, choose the location"
+            self.print_sentence(sentence)
+            self.screen.blit(self.next, self.next_rect)
+            data = self.sql.get_location(self.tournament.town)
 
-        sentence = "Veuillez choisir le pays"
-        self.print_sentence(sentence)
-        self.screen.blit(self.next, self.next_rect)
-
-        country = self.sql.get_country()
-        country_tmp = pygame.font.Font(None, 130).render(
-            "<  " + country[self.index_location][1] + "  >",
+        #  CHANGER LA DATABASE
+        sentence_tmp = pygame.font.Font(None, 130).render(
+            "<  " + str(data[self.index_location][1]) + "  >",
             1,
             (255, 255, 255))
-        self.screen.blit(country_tmp, (420, 300))
-
-    def create_tournament_town(self):
-        """ Method for select the tournament's town """
-
-        self.print_sentence("Veuillez choisir la ville")
-        self.screen.blit(self.next, self.next_rect)
-        town = self.sql.get_town(self.tournament.country)
-        town_tmp = pygame.font.Font(None, 130).render(
-            "<  " + town[self.index_location][1] + "  >",
-            1,
-            (255, 255, 255))
-        self.screen.blit(town_tmp, (420, 300))
-
-    def create_tournament_location(self):
-        """ Method for select the tournament's location """
-
-        self.print_sentence("Veuillez choisir le batiment")
-        self.screen.blit(self.next, self.next_rect)
-        location = self.sql.get_location(self.tournament.town)
-        location_tmp = pygame.font.Font(None, 130).render(
-            "<  " + location[self.index_location][2] + "  >",
-            1,
-            (255, 255, 255))
-        self.screen.blit(location_tmp, (220, 300))
+        self.screen.blit(sentence_tmp, (350, 300))
 
     def create_tournament_date(self):
         """ Method for select the tournament's date """
 
         font_date = pygame.font.Font(None, 70)
-        self.print_sentence("Veuillez choisir la date")
+        self.print_sentence("Please choose the date")
         self.screen.blit(self.next, self.next_rect)
         self.print_sentence(str(self.day), font_date, self.day_rect)
         self.print_sentence(str(self.month), font_date, self.month_rect)
@@ -282,7 +270,7 @@ class Game:
     def create_tournament_time(self):
         """ Methode for select the type of time """
 
-        self.print_sentence("Veuillez choisir le style de temps")
+        self.print_sentence("Please choose the time style")
         self.screen.blit(self.next, self.next_rect)
         self.set_round_time()
         self.screen.blit(self.choice_A, self.choice_A_rect)
@@ -290,7 +278,7 @@ class Game:
         self.screen.blit(self.choice_C, self.choice_C_rect)
         self.print_sentence("bullet", self.font, (130, 310))
         self.print_sentence("blitz", self.font, (530, 310))
-        self.print_sentence("coup rapide", self.font, (930, 310))
+        self.print_sentence("speed shot", self.font, (930, 310))
 
     def set_time(self):
         """ Method for se't up the rect of time management """
@@ -298,6 +286,17 @@ class Game:
         # set up the day month and year in pygame format
 
         #  RENDRE GENERIQUE
+        # lists = [[self.day, "%d", self.day_font, self.day_rect, 400, 300],
+        #         [self.month, "%m", self.month_font, self.month_rect, 620, 300],
+        #         [self.year, "%Y", self.year_font, self.year_rect, 840, 300]]
+        # font_date = pygame.font.Font(None, 70)
+        # for list in lists:
+        #     list[0] = int(datetime.now().strftime(list[1]))
+        #     list[2] = font_date.render(str(list[0]), 1, (255, 255, 255))
+        #     list[3] = list[2].get_rect()
+        #     list[3].x = list[4]
+        #     list[3].y = list[5]
+
         font_date = pygame.font.Font(None, 70)
         self.day = int(datetime.now().strftime('%d'))
         self.day_font = font_date.render(str(self.day), 1, (255, 255, 255))
@@ -318,44 +317,28 @@ class Game:
     def set_round_time(self):
         """ Methode for update the display of the time selector """
 
+        self.choice_A = self.set_an_image('assets/button/round.png', (60, 60))
+        self.choice_A_rect = self.set_an_image_rec(self.choice_A, 50, 300)
+        self.choice_B = self.set_an_image('assets/button/round.png', (60, 60))
+        self.choice_B_rect = self.set_an_image_rec(self.choice_B, 450, 300)
+        self.choice_C = self.set_an_image('assets/button/round.png', (60, 60))
+        self.choice_C_rect = self.set_an_image_rec(self.choice_C, 850, 300)
 
-        #  rendre generique avec un dico
-        if(self.choice == 1):
-            self.choice_A = pygame.image.load(
-                'assets/button/round_selected.png')
-        else:
-            self.choice_A = pygame.image.load('assets/button/round.png')
-        self.choice_A = pygame.transform.scale(self.choice_A, (60, 60))
-        self.choice_A_rect = self.choice_A.get_rect()
-        self.choice_A_rect.x = 50
-        self.choice_A_rect.y = 300
-
-        if(self.choice == 2):
-            self.choice_B = pygame.image.load(
-                'assets/button/round_selected.png')
-        else:
-            self.choice_B = pygame.image.load('assets/button/round.png')
-        self.choice_B = pygame.transform.scale(self.choice_B, (60, 60))
-        self.choice_B_rect = self.choice_B.get_rect()
-        self.choice_B_rect.x = 450
-        self.choice_B_rect.y = 300
-
-        if(self.choice == 3):
-            self.choice_C = pygame.image.load(
-                'assets/button/round_selected.png')
-        else:
-            self.choice_C = pygame.image.load('assets/button/round.png')
-        self.choice_C = pygame.transform.scale(self.choice_C, (60, 60))
-        self.choice_C_rect = self.choice_C.get_rect()
-        self.choice_C_rect.x = 850
-        self.choice_C_rect.y = 300
+        if self.choice == 1:
+            self.choice_A = self.set_an_image(
+                'assets/button/round_selected.png', (60, 60))
+        if self.choice == 2:
+            self.choice_B = self.set_an_image(
+                'assets/button/round_selected.png', (60, 60))
+        if self.choice == 3:
+            self.choice_C = self.set_an_image(
+                'assets/button/round_selected.png', (60, 60))
 
     def create_tournament_description(self):
         """ Methode for write the description of the tournament """
 
-        self.print_sentence("Veuillez entrer la description du tournoi")
-        input = pygame.image.load('assets/button/input.png')
-        input = pygame.transform.scale(input, (700, 150))
+        self.print_sentence("Please enter the tournament's description")
+        input = self.set_an_image('assets/button/input.png', (700, 150))
         self.screen.blit(input, (((1280 - 700) / 2), 300))
         text_tmp = self.tournament.description
         text_y = 320
@@ -372,14 +355,13 @@ class Game:
 
         tmp_p = 8 - len(self.players)
         self.print_sentence(
-            f"Veuillez selectioner les {tmp_p} joueurs", self.font, (340, 50))
+            f"Please select the {tmp_p} players", self.font, (340, 50))
 
         # check if all the players have been selected
         if len(self.players) == 8:
             self.screen.blit(self.next, self.next_rect)
         else:
-            input = pygame.image.load('assets/button/input.png')
-            input = pygame.transform.scale(input, (600, 75))
+            input = self.set_an_image('assets/button/input.png', (600, 75))
             self.screen.blit(input, (310, 100))
             self.screen.blit(self.search_button, self.search_button_rect)
             self.print_sentence(self.players_search, self.font, (330, 120))
@@ -429,30 +411,31 @@ class Game:
                 self.tournament.date
                 )
         self.sql.create_tournament(data, self.players)
+        self.tournament.id = self.sql.get_tournament_id([self.tournament.name, self.tournament.description, self.tournament.date])
+        self.tournament.id = self.tournament.id[0][0]
         self.step = "next"
 
     def resume_tournament(self):
         """Method to resume the informations of the tournament """
 
-        # test generique ([label, valeur, position])
-        self.print_sentence("Résumé du tournoi",
-                            pygame.font.Font(None, 35), (340, 50))
-        self.print_sentence(
-            f"nom: {self.tournament.name}", pygame.font.Font(None, 35), (340, 100))
-        self.print_sentence(
-            f"pays: {self.tournament.country}", pygame.font.Font(None, 35), (340, 150))
-        self.print_sentence(
-            f"ville: {self.tournament.town}", pygame.font.Font(None, 35), (340, 200))
-        self.print_sentence(f"lieu: {self.tournament.location}",
-                            pygame.font.Font(None, 35), (340, 250))
-        self.print_sentence(
-            f"date: {self.tournament.date}", pygame.font.Font(None, 35), (340, 300))
-        self.print_sentence(
-            f"temps: {self.tournament.time}", pygame.font.Font(None, 35), (340, 350))
-        self.print_sentence(
-            f"description: {self.tournament.description}", pygame.font.Font(None, 35), (340, 400))
-        self.print_sentence(
-            f"joueurs: {self.tournament.players}", pygame.font.Font(None, 35), (340, 450))
+        list_resume = [["Tournament resume", pygame.font.Font(None, 35), (340, 50)],
+                       [f"Name: {self.tournament.name}",
+                           pygame.font.Font(None, 35), (340, 100)],
+                       [f"Country: {self.tournament.country}",
+                           pygame.font.Font(None, 35), (340, 150)],
+                       [f"Town: {self.tournament.town}",
+                           pygame.font.Font(None, 35), (340, 200)],
+                       [f"Location: {self.tournament.location}",
+                           pygame.font.Font(None, 35), (340, 250)],
+                       [f"Date: {self.tournament.date}",
+                           pygame.font.Font(None, 35), (340, 300)],
+                       [f"Time: {self.tournament.time}",
+                           pygame.font.Font(None, 35), (340, 350)],
+                       [f"Description: {self.tournament.description}",
+                           pygame.font.Font(None, 35), (340, 400)],
+                       [f"Players: {self.tournament.players}", pygame.font.Font(None, 35), (340, 450)]]
+        for resume in list_resume:
+            self.print_sentence(resume[0], resume[1], resume[2])
         self.screen.blit(self.start, self.start_rect)
         self.next_up = False
 
@@ -512,7 +495,6 @@ class Game:
     def show_result(self):
         """ Method to show the result of the tournament
         """
-
         self.round.sort_by_rank()
         x = 40
         y = 40
@@ -520,7 +502,7 @@ class Game:
             self.print_sentence(
                 f"Place {index}: {self.round.players[index-1].name} {self.round.players[index-1].last_name}, score = {self.round.players[index-1].score}", self.font, (x, y))
             y += 60
-
+        self.screen.blit(self.save, self.save_rect)
 
     def show_settings(self):
         """ Method for show the score during a tournament and edit it """
@@ -531,10 +513,43 @@ class Game:
         for index in range(1, 8):
             self.print_sentence(
                 f"Place {index}: {self.round.players[index-1].name} {self.round.players[index-1].last_name}, score = {self.round.players[index-1].score}", self.font, (x, y))
-            y += 60
+            y += 70
         self.screen.blit(self.validate, self.validate_rect)
+        x = 900
+        y = 40
+        for player in self.round.players:
+            player.rect = self.set_an_image_rec(player.img, x, y)
+            self.screen.blit(player.img, player.rect)
+            y += 60
+
+    # Method about the load of prev game
+    def show_prev_matchs(self):
+        if self.match_load:
+            load = self.sql.get_players_score(self.match_load)
+            x = 50
+            y = 50
+            for data in load:
+                self.print_sentence(f"{data[0]} {data[1]} score: {data[2]}", self.font, (x, y))
+                y += 50
+            self.screen.blit(self.prev, self.prev_rect)
+
+        else:
+            self.history = self.sql.get_prev_tournament()
+            x = 50
+            y = 50
+            self.history_button = []
+            for tournament in self.history:
+                self.history_button.append(Load_a_tournament(y, x+1000, tournament[0][0]))
+                self.print_sentence(tournament[0][1], self.font, (x, y))
+                y += 50
+                self.print_sentence(tournament[0][2], self.font, (x, y))
+                y += 50
+            for index in self.history_button:
+                self.screen.blit(index.img, index.rect)
+            
 
     # Method general
+
     def print_sentence(self, sentence, font=False, position=(340, 100)):
         """ the Methode to print a sentence in the game
 
@@ -564,7 +579,7 @@ class Game:
             img = pygame.transform.scale(img, size)
         return img
 
-    def set_an_image(self, img, x, y):
+    def set_an_image_rec(self, img, x, y):
         """ Method to set up an image
 
         Args:

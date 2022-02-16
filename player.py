@@ -1,4 +1,5 @@
 import random
+import pygame
 
 class Player:
 
@@ -22,3 +23,9 @@ class Player:
         self.choosed = False
         self.pool = 0
         self.pool_rank = 0
+        self.img = pygame.image.load('assets/button/editer.png')
+        self.img = pygame.transform.scale(self.img, (150, 50))
+        self.rect = self.img.get_rect()
+        self.rect.x = 0
+        self.rect.y = 0
+        self.selected = False

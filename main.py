@@ -47,7 +47,7 @@ step = {
 }
 while running:
 
-    if game.is_launch:
+    if game.is_launch or game.load:
         game.update()
     else:
         # app the image of first menu
@@ -75,10 +75,18 @@ while running:
                     game.is_launch = True
                     game.step = "name"
                 if load_button_rect.collidepoint(event.pos):
-                    print('load')
+                    game.load = True
+
+            # Manage the load buttons
+            if game.load:
+                for button in game.history_button:
+                    if button.rect.collidepoint(event.pos):
+                        game.match_load = button.id_tournament
+                if game.prev_rect.collidepoint(event.pos):
+                    game.match_load = False
 
             # manage the next step of creation of a tournament
-            if game.next_up and game.next_rect.collidepoint(event.pos):
+            elif game.next_up and game.next_rect.collidepoint(event.pos):
                 if game.step == "country":
                     tmp_country = game.sql.get_country()
                     tmp_country = tmp_country[game.index_location]
@@ -157,6 +165,14 @@ while running:
             if game.next_up == False:
                 if game.game_statut:
                     if game.round.settings:
+                        for player in game.round.players:
+                            if player.rect.collidepoint(event.pos):
+                                for all_player in game.round.players:
+                                    all_player.img = game.set_an_image('assets/button/editer.png', (150, 50))
+                                    all_player.selected = False
+                                player.img = game.set_an_image('assets/button/editer-check.png', (150, 50))
+                                player.selected = True
+                        
                         if game.validate_rect.collidepoint(event.pos):
                             game.round.generate_round()
                             game.round.settings = False
@@ -253,69 +269,98 @@ while running:
                                 game.game_statut = False
                         elif game.update_score_rect.collidepoint(event.pos):
                             game.round.settings = True
+                        
+                # Mannage save
+                if game.round.nb_turn == 7 and game.save_rect.collidepoint(event.pos):
+                    for player in game.round.players:
+                        game.sql.save_score((player.id, game.tournament.id, player.score))     
+                    game = Game(screen)
+
 
         # if use keyboard
         elif event.type == pygame.KEYDOWN:
-            # manage the creation of the name
-            if game.step == "name" or game.step == "description" or game.step == "player":
-                letters = {x: pygame.key.key_code(
-                    x) for x in "abcdefghijklmnopqrstuvwxyz"}
-                touche = pygame.key.get_pressed()
-                for (l, value) in letters.items():
-                    if touche[value]:
+
+            if game.next_up:
+                # manage the creation of the name
+                if game.step == "name" or game.step == "description" or game.step == "player":
+                    letters = {x: pygame.key.key_code(
+                        x) for x in "abcdefghijklmnopqrstuvwxyz"}
+                    touche = pygame.key.get_pressed()
+                    for (l, value) in letters.items():
+                        if touche[value]:
+                            if game.step == "name":
+                                if len(game.tournament.description) < 50:
+                                    game.tournament.name = game.tournament.name + \
+                                        str(l)
+                            elif game.step == "description":
+                                if len(game.tournament.description) < 200:
+                                    game.tournament.description = game.tournament.description + \
+                                        str(l)
+                            elif game.step == "player":
+                                game.players_search = game.players_search + str(l)
+                    if event.key == pygame.K_SPACE:
                         if game.step == "name":
-                            if len(game.tournament.description) < 50:
-                                game.tournament.name = game.tournament.name + \
-                                    str(l)
+                            game.tournament.name = game.tournament.name + " "
                         elif game.step == "description":
-                            if len(game.tournament.description) < 200:
-                                game.tournament.description = game.tournament.description + \
-                                    str(l)
+                            game.tournament.description = game.tournament.description + " "
                         elif game.step == "player":
-                            game.players_search = game.players_search + str(l)
-                if event.key == pygame.K_SPACE:
-                    if game.step == "name":
-                        game.tournament.name = game.tournament.name + " "
-                    elif game.step == "description":
-                        game.tournament.description = game.tournament.description + " "
-                    elif game.step == "player":
-                        game.players_search = game.players_search + " "
-                elif event.key == pygame.K_BACKSPACE:
-                    if game.step == "name":
-                        game.tournament.name = game.tournament.name[:-1]
-                    elif game.step == "description":
-                        game.tournament.description = game.tournament.description[:-1]
-                    elif game.step == "player":
-                        game.players_search = game.players_search[:-1]
+                            game.players_search = game.players_search + " "
+                    elif event.key == pygame.K_BACKSPACE:
+                        if game.step == "name":
+                            game.tournament.name = game.tournament.name[:-1]
+                        elif game.step == "description":
+                            game.tournament.description = game.tournament.description[:-1]
+                        elif game.step == "player":
+                            game.players_search = game.players_search[:-1]
 
-            if game.step == "country":
-                if event.key == pygame.K_LEFT:
-                    game.index_location -= 1
-                    if game.index_location < 0:
-                        game.index_location = len(game.sql.get_country()) - 1
-                elif event.key == pygame.K_RIGHT:
-                    game.index_location += 1
-                    if game.index_location >= len(game.sql.get_country()):
-                        game.index_location = 0
+                if game.step == "country":
+                    if event.key == pygame.K_LEFT:
+                        game.index_location -= 1
+                        if game.index_location < 0:
+                            game.index_location = len(game.sql.get_country()) - 1
+                    elif event.key == pygame.K_RIGHT:
+                        game.index_location += 1
+                        if game.index_location >= len(game.sql.get_country()):
+                            game.index_location = 0
 
-            if game.step == "town":
-                if event.key == pygame.K_LEFT:
-                    game.index_location -= 1
-                    if game.index_location < 0:
-                        game.index_location = len(
-                            game.sql.get_town(game.tournament.country)) - 1
-                elif event.key == pygame.K_RIGHT:
-                    game.index_location += 1
-                    if game.index_location >= len(game.sql.get_town(game.tournament.country)):
-                        game.index_location = 0
+                if game.step == "town":
+                    if event.key == pygame.K_LEFT:
+                        game.index_location -= 1
+                        if game.index_location < 0:
+                            game.index_location = len(
+                                game.sql.get_town(game.tournament.country)) - 1
+                    elif event.key == pygame.K_RIGHT:
+                        game.index_location += 1
+                        if game.index_location >= len(game.sql.get_town(game.tournament.country)):
+                            game.index_location = 0
 
-            if game.step == "location":
-                if event.key == pygame.K_LEFT:
-                    game.index_location -= 1
-                    if game.index_location < 0:
-                        game.index_location = len(
-                            game.sql.get_location(game.tournament.town)) - 1
-                elif event.key == pygame.K_RIGHT:
-                    game.index_location += 1
-                    if game.index_location >= len(game.sql.get_location(game.tournament.town)):
-                        game.index_location = 0
+                if game.step == "location":
+                    if event.key == pygame.K_LEFT:
+                        game.index_location -= 1
+                        if game.index_location < 0:
+                            game.index_location = len(
+                                game.sql.get_location(game.tournament.town)) - 1
+                    elif event.key == pygame.K_RIGHT:
+                        game.index_location += 1
+                        if game.index_location >= len(game.sql.get_location(game.tournament.town)):
+                            game.index_location = 0
+            
+            else:
+                if game.next_up == False:
+                    if game.game_statut:
+                        if game.round.settings:
+                            letters = {x: pygame.key.key_code(
+                                x) for x in "1234567890"}
+                            touche = pygame.key.get_pressed()
+                            for (l, value) in letters.items():
+                                if touche[value]:
+                                    for player in game.round.players:
+                                        if player.selected:
+                                            player.score = int(str(player.score) + str(l))
+                                            if player.score > 14:
+                                                player.score = 14
+                            
+                            if event.key == pygame.K_BACKSPACE:
+                                for player in game.round.players:
+                                    if player.selected:
+                                        player.score = 0

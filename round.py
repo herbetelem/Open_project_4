@@ -4,6 +4,7 @@ from datetime import datetime
 from multiprocessing import pool
 from pickle import FALSE
 from re import A
+from secrets import randbelow
 from SQL_function import SQL_function
 from player import Player
 
@@ -13,26 +14,30 @@ from player import Player
 
 class Round:
 
-    def __init__(self, players):
+    def __init__(self, players, id_tournament):
         """ Class to manage the round
 
         Args:
             players (list): list of all players by id
+            id_tournament (int): the id of the tournament
         """
 
+        self.name = ""
         self.sql = SQL_function()
         self.players = []
-        self.date_start = datetime.now().strftime('%Y-%m-%d')
-        self.date_end = ""
-        self.hour_start =  datetime.now().strftime('%H-%M')
-        self.hour_end = ""
-        self.id_tournament = ""
-        self.match = [[1, 2, False], [3, 4, False], [5, 6, False], [7, 8, False]]
+        self.date_start = [0, 0, 0, 0, 0, 0, 0]
+        self.date_end = [0, 0, 0, 0, 0, 0, 0]
+        self.hour_start = [0, 0, 0, 0, 0, 0, 0]
+        self.hour_end = [0, 0, 0, 0, 0, 0, 0]
+        self.id_tournament = id_tournament
+        self.match = [[1, 2, False], [3, 4, False],
+                      [5, 6, False], [7, 8, False]]
         self.match_done = []
         self.nb_turn = 0
         players = self.get_players_info(players)
         for player in players:
-            self.players.append(Player(player[0], player[2], player[1], player[3]))
+            self.players.append(
+                Player(player[0], player[2], player[1], player[3]))
         self.settings = False
 
     def get_players_info(self, players):
@@ -54,7 +59,12 @@ class Round:
     def generate_round(self):
         """ Methode to generate the round """
 
+        self.name = f"Round: {self.nb_turn+1}"
         index_match = 0
+        self.date_start[self.nb_turn] = datetime.now().strftime('%Y-%m-%d')
+        self.hour_start[self.nb_turn] = datetime.now().strftime('%H-%M')
+        self.match = [[1, 2, False], [3, 4, False],
+                      [5, 6, False], [7, 8, False]]
         self.sort_by_rank()
         # set up all false cause for the new round no one have an adv for now
         list_adv = [False, False, False, False, False, False, False, False]
@@ -64,7 +74,7 @@ class Round:
             for match in self.match:
                 if player in match:
                     is_player_choosed = True
-            
+
             if not is_player_choosed and index_match < 4:
                 found = False
                 for order in list_order:
@@ -88,16 +98,21 @@ class Round:
             1: [2, 0],
             2: [0, 2],
         }
-
+        self.date_end[self.nb_turn] = datetime.now().strftime('%Y-%m-%d')
+        self.hour_end[self.nb_turn] = datetime.now().strftime('%H-%M')
+        for match in self.match:
+            self.sql.save_round((self.id_tournament, match[0].id, match[1].id, match[2], self.name, self.date_start[self.nb_turn],
+                                self.date_end[self.nb_turn], self.hour_start[self.nb_turn], self.hour_end[self.nb_turn]))
         for index in range(4):
             # attribution of score
             self.match[index][0].score += score[results[index]][0]
             self.match[index][1].score += score[results[index]][1]
-            
+
             # add in the history of player their match
             self.match[index][0].matched.append(self.match[index][1])
             self.match[index][1].matched.append(self.match[index][0])
-        self.match = [[1, 2, False], [3, 4, False], [5, 6, False], [7, 8, False]]
+        self.match = [[1, 2, False], [3, 4, False],
+                      [5, 6, False], [7, 8, False]]
         self.nb_turn += 1
         for player in self.players:
             player.choosed = False
@@ -110,7 +125,10 @@ class Round:
 
     def sort_by_rank(self):
         """ Method to sort the players first by their score, then by their global rank """
-        self.players.sort(key=lambda x: (x.score, -x.global_rank) , reverse=True)
+        self.players.sort(key=lambda x: (
+            x.score, -x.global_rank), reverse=True)
+        for i in range(8):
+            self.players[i].pool_rank = i
 
 
 # item = Round([301, 302, 303, 304, 205, 306, 208, 308])

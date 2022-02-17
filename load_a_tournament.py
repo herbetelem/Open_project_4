@@ -4,8 +4,14 @@ import pygame
 class Load_a_tournament:
 
     def __init__(self, y, x, id_tournament):
+        """Method to manage the button load of a tournament
 
-        # var about the player
+        Args:
+            y (int): position Y of the button
+            x (int): position X of the button
+            id_tournament (int): id of the tournament 
+        """
+
         self.img = pygame.image.load('assets/button/load.png')
         self.img = pygame.transform.scale(self.img, (150, 50))
         self.rect = self.img.get_rect()

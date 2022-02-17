@@ -100,7 +100,7 @@ while running:
                     tmp_location = tmp_location[game.index_location]
                     game.tournament.location = tmp_location
                 if game.step == "date":
-                    game.tournament.date = f"{game.day}/{game.month}/{game.year}"
+                    game.tournament.date = f"{game.day.str}/{game.month.str}/{game.year.str}"
                 if game.step == "time":
                     if game.choice == 1:
                         game.tournament.time = "bullet"
@@ -123,18 +123,18 @@ while running:
             if game.next_up:
                 # manage the selection of the date
                 if game.step == "date":
-                    if game.day_rect.collidepoint(event.pos):
-                        if game.day == 31:
-                            game.day = 1
+                    if game.day.rect.collidepoint(event.pos):
+                        if game.day.str == 31:
+                            game.day.str = 1
                         else:
-                            game.day += 1
-                    if game.month_rect.collidepoint(event.pos):
-                        if game.month == 12:
-                            game.month = 1
+                            game.day.str += 1
+                    if game.month.rect.collidepoint(event.pos):
+                        if game.month.str == 12:
+                            game.month.str = 1
                         else:
-                            game.month += 1
-                    if game.year_rect.collidepoint(event.pos):
-                        game.year += 1
+                            game.month.str += 1
+                    if game.year.rect.collidepoint(event.pos):
+                        game.year.str += 1
 
                 # manage the selection of turn
                 if game.step == "turn":
@@ -154,6 +154,7 @@ while running:
                     if game.choice_C_rect.collidepoint(event.pos):
                         game.choice = 3
 
+                # manage the selection of players
                 if game.step == "player":
                     for button in game.tmp_players:
                         if button.rect.collidepoint(event.pos):
@@ -162,8 +163,11 @@ while running:
                                 game.players_search = ""
                                 game.step = "player"
 
+            # if the tournament have been created
             if game.next_up == False:
                 if game.game_statut:
+
+                    # if the settings have been selected
                     if game.round.settings:
                         for player in game.round.players:
                             if player.rect.collidepoint(event.pos):
@@ -345,6 +349,7 @@ while running:
                         if game.index_location >= len(game.sql.get_location(game.tournament.town)):
                             game.index_location = 0
             
+            # manage the keybord used for update the score
             else:
                 if game.next_up == False:
                     if game.game_statut:

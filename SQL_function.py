@@ -86,6 +86,15 @@ class SQL_function():
             self.connector.commit()
 
     def get_tournament_id(self, data):
+        """Method to get the id of a tournament
+
+        Args:
+            data (list): list of the data who will be used for the search
+
+        Returns:
+            list: result of the search
+        """
+
         request = f"SELECT id FROM tournament WHERE name='{data[0]}' AND description='{data[1]}' AND date='{data[2]}';"
         self.cursor.execute(request)
         result = self.cursor.fetchall()
@@ -163,6 +172,15 @@ class SQL_function():
         return results
 
     def get_players_score(self, id_tournament):
+        """ Method to get the name lastname and score of a player from a tournament
+
+        Args:
+            id_tournament (int): id of the tournament
+
+        Returns:
+            list: list of data
+        """
+
         self.cursor.execute(f"SELECT name, lastname, score FROM score INNER JOIN player ON score.player_id = player.id WHERE tournament_id = {id_tournament}")
         result = self.cursor.fetchall()
         return result

@@ -129,28 +129,3 @@ class Round:
             x.score, -x.global_rank), reverse=True)
         for i in range(8):
             self.players[i].pool_rank = i
-
-
-# item = Round([301, 302, 303, 304, 205, 306, 208, 308])
-# item.generate_round()
-# item.validate_round([1,3,2,1])
-
-# item.generate_round()
-# item.validate_round([1,3,2,1])
-
-# item.generate_round()
-# item.validate_round([1,3,2,1])
-
-# item.generate_round()
-# item.validate_round([1,3,2,1])
-
-# item.generate_round()
-# item.validate_round([1,3,2,1])
-
-# item.generate_round()
-# item.validate_round([1,3,2,1])
-
-# item.generate_round()
-# item.validate_round([1,3,2,1])
-
-# item.print_score()

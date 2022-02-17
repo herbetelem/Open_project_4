@@ -1,6 +1,7 @@
 import sqlite3
 import random
 
+# Test file who is here to generate random player into the database
 
 name_male = ["percy", "grover", "thesee",  "mathieu",
              "jason", "eliotte",  "tom",

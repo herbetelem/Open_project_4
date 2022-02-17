@@ -6,6 +6,7 @@ from add_player import Add_player
 from datetime import datetime
 from round import Round
 from load_a_tournament import Load_a_tournament
+from date_select import Date_selected
 
 # create class game
 
@@ -113,6 +114,7 @@ class Game:
     def set_var_game(self):
         """ Method who will set the variables that will be used for game """
 
+        #  set the button object tha will be used for the management of the tournament
         self.game_statut = True
         self.validate = self.set_an_image(
             'assets/button/validate.png', (150, 50))
@@ -125,7 +127,9 @@ class Game:
         self.save_rect = self.set_an_image_rec(self.save, 600, 600)
         self.round = Round(self.players, self.tournament.id)
         self.round.generate_round()
+        self.player_selected = 0
 
+        # generate all the desck object
         deck_tmp = self.generate_var_game(275, 150, 50, 200, 450, 200)
         self.deck_1 = deck_tmp[0]
         self.deck_1_rect = deck_tmp[1]
@@ -166,8 +170,6 @@ class Game:
         self.area_win_8 = deck_tmp[6]
         self.area_rect_win_8 = deck_tmp[7]
 
-        self.player_selected = 0
-
     def generate_var_game(self, deck_rect_x, deck_rect_y, area_A_x, area_A_y, area_B_x, area_B_y):
         """Method to generate the desck and player pygame object
 
@@ -182,6 +184,7 @@ class Game:
         Returns:
             tuple: all pygame object
         """
+
         deck = self.set_an_image('assets/match-no-result.png', (140, 140))
         deck_rect = self.set_an_image_rec(deck, deck_rect_x, deck_rect_y)
         area_win_A = pygame.Rect((area_A_x, area_A_y), (150, 40))
@@ -196,9 +199,12 @@ class Game:
     #  Method to manage all
     def update(self):
         """ Method who will call the function for the actual step of the programm """
+        
+        # load the histry of tournament
         if self.load:
             self.screen.blit(self.background_3, (0, 0))
             self.show_prev_matchs()
+        # load the tournament
         elif self.tournament.created:
             # app the background
             self.screen.blit(self.background_2, (0, 0))
@@ -208,12 +214,12 @@ class Game:
                 self.show_match()
             else:
                 self.show_result()
+        # load the creation of the tournament
         else:
             # app the background
             self.screen.blit(self.background, (0, 0))
             # if we want to create a tournament
             self.create_tournament()
-
 
     # Method about the creation
     def create_tournament(self):
@@ -229,7 +235,8 @@ class Game:
         self.screen.blit(input, (((1280 - 700) / 2), 300))
         text = self.font.render(self.tournament.name, 1, (255, 255, 255))
         self.screen.blit(text, (((1280 - 700) / 2 + 50), 340))
-        self.screen.blit(self.next, self.next_rect)
+        if len(self.tournament.name) > 0:
+            self.screen.blit(self.next, self.next_rect)
 
     def create_tournament_place(self):
         """ Method for select the tournament's country """
@@ -250,7 +257,6 @@ class Game:
             self.screen.blit(self.next, self.next_rect)
             data = self.sql.get_location(self.tournament.town)
 
-        #  CHANGER LA DATABASE
         sentence_tmp = pygame.font.Font(None, 130).render(
             "<  " + str(data[self.index_location][1]) + "  >",
             1,
@@ -263,9 +269,9 @@ class Game:
         font_date = pygame.font.Font(None, 70)
         self.print_sentence("Please choose the date")
         self.screen.blit(self.next, self.next_rect)
-        self.print_sentence(str(self.day), font_date, self.day_rect)
-        self.print_sentence(str(self.month), font_date, self.month_rect)
-        self.print_sentence(str(self.year), font_date, self.year_rect)
+        self.print_sentence(str(self.day.str), font_date, self.day.rect)
+        self.print_sentence(str(self.month.str), font_date, self.month.rect)
+        self.print_sentence(str(self.year.str), font_date, self.year.rect)
 
     def create_tournament_time(self):
         """ Methode for select the type of time """
@@ -285,34 +291,9 @@ class Game:
 
         # set up the day month and year in pygame format
 
-        #  RENDRE GENERIQUE
-        # lists = [[self.day, "%d", self.day_font, self.day_rect, 400, 300],
-        #         [self.month, "%m", self.month_font, self.month_rect, 620, 300],
-        #         [self.year, "%Y", self.year_font, self.year_rect, 840, 300]]
-        # font_date = pygame.font.Font(None, 70)
-        # for list in lists:
-        #     list[0] = int(datetime.now().strftime(list[1]))
-        #     list[2] = font_date.render(str(list[0]), 1, (255, 255, 255))
-        #     list[3] = list[2].get_rect()
-        #     list[3].x = list[4]
-        #     list[3].y = list[5]
-
-        font_date = pygame.font.Font(None, 70)
-        self.day = int(datetime.now().strftime('%d'))
-        self.day_font = font_date.render(str(self.day), 1, (255, 255, 255))
-        self.day_rect = self.day_font.get_rect()
-        self.day_rect.x = 400
-        self.day_rect.y = 300
-        self.month = int(datetime.now().strftime('%m'))
-        self.month_font = font_date.render(str(self.month), 1, (255, 255, 255))
-        self.month_rect = self.month_font.get_rect()
-        self.month_rect.x = 620
-        self.month_rect.y = 300
-        self.year = int(datetime.now().strftime('%Y'))
-        self.year_font = font_date.render(str(self.year), 1, (255, 255, 255))
-        self.year_rect = self.year_font.get_rect()
-        self.year_rect.x = 840
-        self.year_rect.y = 300
+        self.day = Date_selected("%d", 400, 300)
+        self.month = Date_selected("%m", 620, 300)
+        self.year = Date_selected("%Y", 840, 300)
 
     def set_round_time(self):
         """ Methode for update the display of the time selector """
@@ -348,7 +329,8 @@ class Game:
                 text_tmp[:50], font, (((1280 - 700) / 2 + 10), text_y))
             text_tmp = text_tmp[50:]
             text_y += 30
-        self.screen.blit(self.next, self.next_rect)
+        if len(self.tournament.description) > 0:
+            self.screen.blit(self.next, self.next_rect)
 
     def create_tournament_player(self):
         """ Methode for select the player of the tournament """
@@ -365,7 +347,7 @@ class Game:
             self.screen.blit(input, (310, 100))
             self.screen.blit(self.search_button, self.search_button_rect)
             self.print_sentence(self.players_search, self.font, (330, 120))
-            self.print_sentence("nom du joueur", self.font, (20, 120))
+            self.print_sentence("player name", self.font, (20, 120))
             self.search_player()
 
     def search_player(self):
@@ -444,7 +426,7 @@ class Game:
         """ Method who will show the match of the actual round """
 
         self.print_sentence(
-            f"Liste des matchs du Round {self.round.nb_turn + 1}", self.font, (400, 50))
+            f"Round match list n°{self.round.nb_turn + 1}", self.font, (400, 50))
 
         # match 1
         self.print_sentence(

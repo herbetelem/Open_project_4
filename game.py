@@ -3,7 +3,6 @@ import pygame
 from tournament import Tournament
 from SQL_function import SQL_function
 from add_player import Add_player
-from datetime import datetime
 from round import Round
 from load_a_tournament import Load_a_tournament
 from date_select import Date_selected

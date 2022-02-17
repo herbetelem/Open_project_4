@@ -1,9 +1,10 @@
 import random
 import pygame
 
+
 class Player:
 
-    def __init__(self,id_player , name, last_name, global_rank, score=0):
+    def __init__(self, id_player, name, last_name, global_rank, score=0):
         """ Object player
 
         Args:
@@ -13,7 +14,7 @@ class Player:
             global_rank (int): the global rank of the player
             score (int, optional): the score of the player. Defaults to 0.
         """
-        
+
         self.id = id_player
         self.name = name
         self.last_name = last_name

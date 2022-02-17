@@ -57,7 +57,8 @@ class Game:
         self.search_button_rect = self.set_an_image_rec(
             self.search_button, 940, 125)
         self.prev = self.set_an_image('assets/button/prev.png', (400, 150))
-        self.prev_rect = self.set_an_image_rec(self.prev, (1280 - 400) / 2, 500)
+        self.prev_rect = self.set_an_image_rec(
+            self.prev, (1280 - 400) / 2, 500)
 
         self.next_up = True
 
@@ -199,7 +200,7 @@ class Game:
     #  Method to manage all
     def update(self):
         """ Method who will call the function for the actual step of the programm """
-        
+
         # load the histry of tournament
         if self.load:
             self.screen.blit(self.background_3, (0, 0))
@@ -393,7 +394,8 @@ class Game:
                 self.tournament.date
                 )
         self.sql.create_tournament(data, self.players)
-        self.tournament.id = self.sql.get_tournament_id([self.tournament.name, self.tournament.description, self.tournament.date])
+        self.tournament.id = self.sql.get_tournament_id(
+            [self.tournament.name, self.tournament.description, self.tournament.date])
         self.tournament.id = self.tournament.id[0][0]
         self.step = "next"
 
@@ -511,7 +513,8 @@ class Game:
             x = 50
             y = 50
             for data in load:
-                self.print_sentence(f"{data[0]} {data[1]} score: {data[2]}", self.font, (x, y))
+                self.print_sentence(
+                    f"{data[0]} {data[1]} score: {data[2]}", self.font, (x, y))
                 y += 50
             self.screen.blit(self.prev, self.prev_rect)
 
@@ -521,14 +524,14 @@ class Game:
             y = 50
             self.history_button = []
             for tournament in self.history:
-                self.history_button.append(Load_a_tournament(y, x+1000, tournament[0][0]))
+                self.history_button.append(
+                    Load_a_tournament(y, x+1000, tournament[0][0]))
                 self.print_sentence(tournament[0][1], self.font, (x, y))
                 y += 50
                 self.print_sentence(tournament[0][2], self.font, (x, y))
                 y += 50
             for index in self.history_button:
                 self.screen.blit(index.img, index.rect)
-            
 
     # Method general
 

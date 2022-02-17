@@ -144,7 +144,6 @@ class SQL_function():
             'INSERT INTO round VALUES(?,?,?,?,?,?,?,?,?)', data)
         self.connector.commit()
 
-    
     def save_score(self, data):
         """ Method to create the round
 
@@ -163,11 +162,13 @@ class SQL_function():
             list: list of all tournament done
         """
 
-        self.cursor.execute('SELECT tournament_id FROM score GROUP BY tournament_id;')
+        self.cursor.execute(
+            'SELECT tournament_id FROM score GROUP BY tournament_id;')
         result = self.cursor.fetchall()
         results = []
         for index in result:
-            self.cursor.execute(f"SELECT id, name, date FROM tournament WHERE id={index[0]} ORDER BY id DESC LIMIT 6;")
+            self.cursor.execute(
+                f"SELECT id, name, date FROM tournament WHERE id={index[0]} ORDER BY id DESC LIMIT 6;")
             results.append(self.cursor.fetchall())
         return results
 
@@ -181,6 +182,7 @@ class SQL_function():
             list: list of data
         """
 
-        self.cursor.execute(f"SELECT name, lastname, score FROM score INNER JOIN player ON score.player_id = player.id WHERE tournament_id = {id_tournament}")
+        self.cursor.execute(
+            f"SELECT name, lastname, score FROM score INNER JOIN player ON score.player_id = player.id WHERE tournament_id = {id_tournament}")
         result = self.cursor.fetchall()
         return result

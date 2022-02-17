@@ -1,7 +1,7 @@
 # Project Openclassroom Développez un programme logiciel en Python
 [![forthebadge](http://forthebadge.com/images/badges/works-on-my-machine.svg)](http://forthebadge.com)  [![forthebadge](http://forthebadge.com/images/badges/made-with-python.svg)](http://forthebadge.com)
 
-Le but de ce projet est de créer un programme permettant le creation et gestion de tournoi d'echec, tout en stockant les resultats dans une base de donnée.
+The goal of this project is to create a program allowing the creation and management of chess tournaments, while storing the results in a database.
 
 ## Launching
 

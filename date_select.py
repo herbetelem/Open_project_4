@@ -1,5 +1,5 @@
-import pygame
 from datetime import datetime
+import pygame
 
 
 class Date_selected:

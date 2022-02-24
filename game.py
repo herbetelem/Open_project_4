@@ -1,11 +1,12 @@
-from turtle import pd
 import pygame
-from tournament import Tournament
-from SQL_function import SQL_function
+from turtle import pd
+
 from add_player import Add_player
-from round import Round
-from load_a_tournament import Load_a_tournament
 from date_select import Date_selected
+from load_a_tournament import Load_a_tournament
+from round import Round
+from SQL_function import SQL_function
+from tournament import Tournament
 
 # create class game
 
@@ -481,10 +482,10 @@ class Game:
         self.round.sort_by_rank()
         x = 40
         y = 40
-        for index in range(1, 8):
+        for index in range(1, 9):
             self.print_sentence(
                 f"Place {index}: {self.round.players[index-1].name} {self.round.players[index-1].last_name}, score = {self.round.players[index-1].score}", self.font, (x, y))
-            y += 60
+            y += 70
         self.screen.blit(self.save, self.save_rect)
 
     def show_settings(self):
@@ -493,7 +494,7 @@ class Game:
         self.round.sort_by_rank()
         x = 40
         y = 40
-        for index in range(1, 8):
+        for index in range(1, 9):
             self.print_sentence(
                 f"Place {index}: {self.round.players[index-1].name} {self.round.players[index-1].last_name}, score = {self.round.players[index-1].score}", self.font, (x, y))
             y += 70
@@ -503,7 +504,7 @@ class Game:
         for player in self.round.players:
             player.rect = self.set_an_image_rec(player.img, x, y)
             self.screen.blit(player.img, player.rect)
-            y += 60
+            y += 70
 
     # Method about the load of prev game
     def show_prev_matchs(self):
@@ -533,7 +534,6 @@ class Game:
                 self.screen.blit(index.img, index.rect)
 
     # Method general
-
     def print_sentence(self, sentence, font=False, position=(340, 100)):
         """ the Methode to print a sentence in the game
 

@@ -1,17 +1,10 @@
-from calendar import c
-from cgitb import reset
 from datetime import datetime
-from multiprocessing import pool
-from pickle import FALSE
-from re import A
-from secrets import randbelow
-from SQL_function import SQL_function
+
 from player import Player
+from SQL_function import SQL_function
 
 
 # create class round
-
-
 class Round:
 
     def __init__(self, players, id_tournament):

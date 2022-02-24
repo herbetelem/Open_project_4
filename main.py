@@ -1,5 +1,6 @@
-import pygame
 import math
+import pygame
+
 from game import Game
 
 pygame.init()
@@ -45,6 +46,44 @@ step = {
     "description": "player",
     "player": "end"
 }
+
+
+def manage_step(game):
+    """ Method to manage the fifferent stp of the creation of the tournament
+
+    Args:
+        game (object): the object pygame of the game
+    """
+    
+    if game.step == "country":
+        tmp_country = game.sql.get_country()
+        tmp_country = tmp_country[game.index_location]
+        game.tournament.country = tmp_country
+    if game.step == "town":
+        tmp_town = game.sql.get_town(game.tournament.country)
+        tmp_town = tmp_town[game.index_location]
+        game.tournament.town = tmp_town
+    if game.step == "location":
+        tmp_location = game.sql.get_location(game.tournament.town)
+        tmp_location = tmp_location[game.index_location]
+        game.tournament.location = tmp_location
+    if game.step == "date":
+        game.tournament.date = f"{game.day.str}/{game.month.str}/{game.year.str}"
+    if game.step == "time":
+        if game.choice == 1:
+            game.tournament.time = "bullet"
+        elif game.choice == 2:
+            game.tournament.time = "blitz"
+        elif game.choice == 3:
+            game.tournament.time = "coup rapide"
+    if game.step == "player" and len(game.players) == 8:
+        game.tournament.players = game.players
+        game.step = step[game.step]
+        game.index_location = 0
+    elif game.step != "player":
+        game.step = step[game.step]
+        game.index_location = 0
+
 while running:
 
     if game.is_launch or game.load:
@@ -87,34 +126,7 @@ while running:
 
             # manage the next step of creation of a tournament
             elif game.next_up and game.next_rect.collidepoint(event.pos):
-                if game.step == "country":
-                    tmp_country = game.sql.get_country()
-                    tmp_country = tmp_country[game.index_location]
-                    game.tournament.country = tmp_country
-                if game.step == "town":
-                    tmp_town = game.sql.get_town(game.tournament.country)
-                    tmp_town = tmp_town[game.index_location]
-                    game.tournament.town = tmp_town
-                if game.step == "location":
-                    tmp_location = game.sql.get_location(game.tournament.town)
-                    tmp_location = tmp_location[game.index_location]
-                    game.tournament.location = tmp_location
-                if game.step == "date":
-                    game.tournament.date = f"{game.day.str}/{game.month.str}/{game.year.str}"
-                if game.step == "time":
-                    if game.choice == 1:
-                        game.tournament.time = "bullet"
-                    elif game.choice == 2:
-                        game.tournament.time = "blitz"
-                    elif game.choice == 3:
-                        game.tournament.time = "coup rapide"
-                if game.step == "player" and len(game.players) == 8:
-                    game.tournament.players = game.players
-                    game.step = step[game.step]
-                    game.index_location = 0
-                elif game.step != "player":
-                    game.step = step[game.step]
-                    game.index_location = 0
+                manage_step(game)
             elif game.next_up == False and game.start_rect.collidepoint(event.pos):
                 if(game.tournament.created == False):
                     game.set_var_game()
@@ -414,3 +426,5 @@ while running:
                                 for player in game.round.players:
                                     if player.selected:
                                         player.score = 0
+
+

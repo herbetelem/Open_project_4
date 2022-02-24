@@ -1,5 +1,5 @@
-import sqlite3
 import random
+import sqlite3
 
 # Test file who is here to generate random player into the database
 

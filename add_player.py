@@ -2,6 +2,7 @@ import pygame
 
 
 class Add_player:
+    """Object who will be the add button in the process of creating a player"""
 
     def __init__(self, y, x, show, id_player):
         """ Method to mannage the button add player

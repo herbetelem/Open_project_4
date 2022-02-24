@@ -1,8 +1,9 @@
-import pygame
-import math
-
+"""Object tournament
+    """
 
 class Tournament:
+    """Object of the tournament
+    """
 
     def __init__(self):
         """ Object that will keep the data about the tournament """

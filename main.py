@@ -1,3 +1,5 @@
+"""This code will manage the windows and the event for the application """
+
 import math
 import pygame
 
@@ -54,7 +56,7 @@ def manage_step(game):
     Args:
         game (object): the object pygame of the game
     """
-    
+
     if game.step == "country":
         tmp_country = game.sql.get_country()
         tmp_country = tmp_country[game.index_location]
@@ -84,6 +86,7 @@ def manage_step(game):
         game.step = step[game.step]
         game.index_location = 0
 
+
 while running:
 
     if game.is_launch or game.load:
@@ -109,7 +112,7 @@ while running:
         elif event.type == pygame.MOUSEBUTTONDOWN:
 
             # manage the first menu
-            if game.step == False:
+            if game.step is False:
                 if play_button_rect.collidepoint(event.pos):
                     game.is_launch = True
                     game.step = "name"
@@ -127,8 +130,8 @@ while running:
             # manage the next step of creation of a tournament
             elif game.next_up and game.next_rect.collidepoint(event.pos):
                 manage_step(game)
-            elif game.next_up == False and game.start_rect.collidepoint(event.pos):
-                if(game.tournament.created == False):
+            elif game.next_up is False and game.start_rect.collidepoint(event.pos):
+                if game.tournament.created is False:
                     game.set_var_game()
                     game.tournament.created = True
 
@@ -170,13 +173,14 @@ while running:
                 if game.step == "player":
                     for button in game.tmp_players:
                         if button.rect.collidepoint(event.pos):
-                            if button.id_player not in game.players and len(game.players_search) > 0:
+                            if button.id_player not in game.players and \
+                                    len(game.players_search) > 0:
                                 game.players.append(button.id_player)
                                 game.players_search = ""
                                 game.step = "player"
 
             # if the tournament have been created
-            if game.next_up == False:
+            if game.next_up is False:
                 if game.game_statut:
 
                     # if the settings have been selected
@@ -407,7 +411,7 @@ while running:
 
             # manage the keybord used for update the score
             else:
-                if game.next_up == False:
+                if game.next_up is False:
                     if game.game_statut:
                         if game.round.settings:
                             letters = {x: pygame.key.key_code(
@@ -426,5 +430,3 @@ while running:
                                 for player in game.round.players:
                                     if player.selected:
                                         player.score = 0
-
-

@@ -5,6 +5,8 @@ from turtle import pd
 
 
 class SQL_function():
+    """Object who will mannage the SQL request
+    """
 
     def __init__(self):
         """ Object who will mannage the SQL request """

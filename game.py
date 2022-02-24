@@ -12,6 +12,8 @@ from tournament import Tournament
 
 
 class Game:
+    """Object Who will manage the game
+    """
 
     def __init__(self, screen):
         """ Object who will handle the game and the different step of it

@@ -3,6 +3,8 @@ import pygame
 
 
 class Date_selected:
+    """Object to create the diffrente element of the date
+    """
 
     def __init__(self, unity, x, y):
         """

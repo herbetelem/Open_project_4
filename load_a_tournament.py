@@ -2,6 +2,8 @@ import pygame
 
 
 class Load_a_tournament:
+    """Object to manage the load button of a tournament
+    """
 
     def __init__(self, y, x, id_tournament):
         """Method to manage the button load of a tournament

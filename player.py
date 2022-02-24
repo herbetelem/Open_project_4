@@ -1,8 +1,9 @@
-import random
 import pygame
 
 
 class Player:
+    """Object to set a player and save his data
+    """
 
     def __init__(self, id_player, name, last_name, global_rank, score=0):
         """ Object player
